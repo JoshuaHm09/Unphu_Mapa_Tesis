@@ -25,7 +25,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const OLD_GREEN = '#34A853';
 const OLD_GREEN_SEMI_TRANSPARENT = 'rgba(52, 168, 83, 0.5)';
 
-// --- DATA FOR INTERACTIVE AREAS (Ahora con un array de imágenes) ---
+// --- DATA FOR INTERACTIVE AREAS (With images for the carousel) ---
 const buildings = [
   {
     id: 1,
@@ -88,7 +88,7 @@ const ImageCarousel = ({ images }) => {
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={handleScroll}
-        style={{ width: SCREEN_WIDTH - 40, height: 155 }} // ajustado al padding del modal
+        style={{ width: SCREEN_WIDTH - 40, height: 155 }} 
       >
         {images.map((img, index) => (
           <Image 
@@ -109,7 +109,7 @@ const ImageCarousel = ({ images }) => {
   );
 };
 
-// --- Building Modal Component ---
+// --- Modal Component---
 const BuildingModal = ({ building, onClose }) => {
   if (!building) return null;
   const [activeFloor, setActiveFloor] = useState(Object.keys(building.floors)[0]);
@@ -212,6 +212,5 @@ const styles = StyleSheet.create({
   arrow: { position: 'absolute', top: '50%', marginTop: -20, width: 40, height: 40, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: 20 },
   arrowLeft: { left: 10 },
   arrowRight: { right: 10 },
-  // ¡AQUÍ ESTÁ EL CAMBIO!
   arrowText: { color: 'white', fontSize: 24, fontWeight: 'bold', lineHeight: 24, textAlign: 'center' },
 });
