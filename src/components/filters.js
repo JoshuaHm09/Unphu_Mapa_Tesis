@@ -4,16 +4,19 @@ import {
   Text,
   Pressable,
   ScrollView,
-  Switch,
 } from "react-native";
 import Animated, {
-  useAnimatedStyle,
-  withTiming,
   useSharedValue,
+  withTiming,
+  useAnimatedStyle,
 } from "react-native-reanimated";
 import { Image } from "expo-image";
-import { styles } from "../mapStyles";
+import FilterPill from "./FilterPills";
 
+// ICONO CHECK
+const CHECK_ICON = require("../../assets/check_green.png");
+
+// ICONOS ORIGINALES
 export const FILTER_ICONS = {
   bathrooms: require("../../assets/bathroom_filter.png"),
   vending: require("../../assets/ending_Machine_Filter_Arreglado.png"),
@@ -24,45 +27,60 @@ export const FILTER_ICONS = {
 };
 
 export default function Filters({ filters, setFilters, visible, onClose }) {
-  // Panel ahora viene desde la DERECHA, no la izquierda
-  const offsetX = useSharedValue(300);
+  const opacity = useSharedValue(0);
+  const scale = useSharedValue(0.85);
 
+  // Fade + Scale animation
   React.useEffect(() => {
-    offsetX.value = withTiming(visible ? 0 : 300, { duration: 300 });
+    if (visible) {
+      opacity.value = withTiming(1, { duration: 200 });
+      scale.value = withTiming(1, { duration: 200 });
+    } else {
+      opacity.value = withTiming(0, { duration: 180 });
+      scale.value = withTiming(0.85, { duration: 180 });
+    }
   }, [visible]);
 
-  const panelStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: offsetX.value }],
+  const modalStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: scale.value }],
   }));
 
   const filterItems = [
-    { key: "bathrooms", label: "Baños" },
-    { key: "vending", label: "Máquinas Expendedoras" },
     { key: "parking", label: "Parqueos" },
     { key: "labs", label: "Laboratorios" },
-    { key: "greenAreas", label: "Áreas Verdes" },
+    { key: "bathrooms", label: "Baños" },
+    { key: "vending", label: "Máquina Expendedora" },
     { key: "studyAreas", label: "Salas de Estudio" },
+    { key: "greenAreas", label: "Áreas Verdes" },
   ];
+
+  const resetFilters = () => {
+    const reset = {};
+    filterItems.forEach((f) => (reset[f.key] = false));
+    setFilters(reset);
+  };
+
+  // No renderizar si está oculto → evita errores y optimiza
+  if (!visible) return null;
 
   return (
     <Animated.View
       style={[
-        panelStyle,
+        modalStyle,
         {
           position: "absolute",
-          right: 1,
-          top: 115,                       // <-- debajo del top bar
-          width: 260,
+          top: 120,
+          right: 10,
+          width: 365,
           backgroundColor: "white",
-          borderRadius: 5,
-          paddingVertical: 12,
-          paddingHorizontal: 12,
+          borderRadius: 20,
+          padding: 18,
           shadowColor: "#000",
-          shadowOpacity: 0.18,
-          shadowRadius: 8,
-          elevation: 8,
-          zIndex: 1000,
-          maxHeight: 600,                 // panel compacto
+          shadowOpacity: 0.15,
+          shadowRadius: 12,
+          elevation: 12,
+          zIndex: 2000,
         },
       ]}
     >
@@ -72,58 +90,36 @@ export default function Filters({ filters, setFilters, visible, onClose }) {
           flexDirection: "row",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: 10,
+          marginBottom: 15,
         }}
       >
-        <Text style={{ fontSize: 26, fontWeight: "900", color: "#34A853" }}>
-          Filtros
-        </Text>
-        <Pressable onPress={onClose}>
-          <Text style={{ fontSize: 35, color: "#34A853", fontWeight: "bold" }}>
-            ×
+        <View>
+          <Text style={{ fontSize: 22, fontWeight: "900" }}>Filtros</Text>
+          <Text style={{ fontSize: 13, color: "#6B7280" }}>
+            Sección de filtros
+          </Text>
+        </View>
+
+        <Pressable onPress={resetFilters}>
+          <Text style={{ color: "#34A853", fontWeight: "600" }}>
+            Reiniciar
           </Text>
         </Pressable>
       </View>
 
-      {/* FILTER ITEMS */}
-      <ScrollView showsVerticalScrollIndicator={false}>
+      {/* PILLS */}
+      <ScrollView contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap" }}>
         {filterItems.map((f) => (
-          <View
+          <FilterPill
             key={f.key}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              paddingVertical: 10,
-              paddingHorizontal: 4,
-            }}
-          >
-            {/* Icono */}
-            <View style={styles.filterIconWrapper}>
-              <Image
-                source={FILTER_ICONS[f.key]}
-                style={styles.filterIconImage}
-                contentFit="contain"
-              />
-            </View>
-
-            {/* Label */}
-            <Text style={styles.filterLabel}>{f.label}</Text>
-
-            {/* Switch */}
-            <View style={styles.switchWrapper}>
-              <Switch
-                value={filters[f.key]}
-                onValueChange={(v) =>
-                  setFilters({ ...filters, [f.key]: v })
-                }
-                thumbColor={filters[f.key] ? "#34A853" : "#E5E7EB"}
-                trackColor={{
-                  true: "rgba(52,168,83,0.35)",
-                  false: "#D1D5DB",
-                }}
-              />
-            </View>
-          </View>
+            label={f.label}
+            icon={FILTER_ICONS[f.key]}
+            checkIcon={CHECK_ICON}
+            isOn={filters[f.key]}
+            onToggle={() =>
+              setFilters({ ...filters, [f.key]: !filters[f.key] })
+            }
+          />
         ))}
       </ScrollView>
     </Animated.View>

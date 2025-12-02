@@ -1,4 +1,7 @@
 import { StyleSheet, Dimensions } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+
 const BUILDING_GREEN = "#34A853";
 const { height: SCREEN_HEIGHT, width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -20,7 +23,7 @@ backgroundPattern: {
   topBarWrapper: {
     position: "absolute",
     height: 90,
-    top: 40,
+    top: 20,
     left: 0,
     right: 0,
     width: "100%",
@@ -214,18 +217,34 @@ searchBackdrop: {
     borderColor: "white",
   },
 
-  tabScrollViewContainer: { marginVertical: 10 },
-  tabContainer: { paddingHorizontal: 10 },
+tabScrollViewContainer: {
+  marginTop: 8,
+  marginBottom: 6,
+},
 
-  tab: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    backgroundColor: "#eee",
-    marginHorizontal: 5,
-  },
-  activeTabText: { color: "#fff" },
-  tabText: { color: "#000" },
+tabContainer: {
+  paddingHorizontal: 12,
+  flexDirection: "row",
+  alignItems: "center",
+},
+
+tab: {
+  paddingHorizontal: 22,
+  paddingVertical: 10,
+  borderRadius: 20,
+  backgroundColor: "#eee",
+  marginHorizontal: 5,
+},
+
+tabText: {
+  color: "#000",
+  fontSize: 15,
+  fontWeight: "500",
+},
+
+activeTabText: {
+  color: "#fff",
+},
 
   // HEADER MODAL EDIFICIO
   modalHeader: {
@@ -289,6 +308,12 @@ searchBackdrop: {
     alignItems: "center",
     paddingRight: 40,
   },
+
+  modalTabsWrapper: {
+    marginTop: 10,
+    paddingBottom: 10,
+    backgroundColor: "transparent",
+  },
   modalHeaderTitle: {
     fontSize: 35,
     fontWeight: "800",
@@ -318,27 +343,43 @@ searchBackdrop: {
     fontSize: 25,
     fontWeight: "bold",
     color: "#FFFFFF",
+    right: 12,
+    top: 12
   },
 
-  modalBody: { flex: 1 },
+  modalBody: { flex: 1,},
+
+
   modalInner: {
     flex: 1,
-    backgroundColor: "#F7F7F7",
-    paddingHorizontal: 20,
-    paddingTop: 12,
+    marginTop: 0,
+    backgroundColor: "#F9F8F6",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 10,
+    marginLeft: 10,
+    marginRight: 10,
+
+
   },
 
   // TARJETAS
   card: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fafafa",
-    borderRadius: 15,
-    paddingHorizontal: 16,
-    paddingVertical: 5,
-    marginBottom: 7,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
+    marginHorizontal: 4,
+    marginVertical: 8,
+    padding: 14,
+    borderRadius: 18,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 0.1,
+    elevation: 6,
+    borderWidth: 0.5,
+    borderColor: "rgba(0,0,0,0.05)",
+
   },
 
   cardIconWrapper: {
@@ -356,20 +397,22 @@ searchBackdrop: {
     height: 56,
   },
 
-  cardBody: { flex: 1 },
+  cardBody: {
+    flex: 1,
+  },
 
   cardTitle: {
-    fontSize: 20,
-    fontWeight: "800",
+    fontSize: 16,
+    fontWeight: "700",
     color: "#111827",
     marginBottom: 4,
-
   },
 
   cardDescription: {
-    fontSize: 15,
+    fontSize: 13,
     color: "#6B7280",
     marginBottom: 10,
+    lineHeight: 18,
   },
 
   cardFooter: {
@@ -464,22 +507,7 @@ searchBackdrop: {
     fontSize: 24,
     fontWeight: "bold",
   },
-  // ===== FILTER PANEL (DESLIZABLE) =====
-    filterPanelContainer: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: 280,
-      height: "100%",
-      backgroundColor: "#",
-      paddingTop: 45,
-      paddingHorizontal: 15,
-      shadowColor: "#000",
-      shadowOpacity: 0.22,
-      shadowRadius: 10,
-      elevation: 12,
-      zIndex: 50,
-    },
+
 
     filterPanelHeader: {
       flexDirection: "row",
@@ -564,6 +592,7 @@ searchBackdrop: {
       fontSize: 50,
       color: BUILDING_GREEN,
     },
+
     filterOverlay: {
       position: "absolute",
       top: 0,
@@ -580,7 +609,7 @@ searchBackdrop: {
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: "rgba(0,0,0,0.001)", // transparente pero clickeable
+      backgroundColor: "rgba(0,0,0,0.001)",
       zIndex: 20,         // debajo del searchResults, encima del mapa
     },
 
@@ -603,7 +632,35 @@ searchBackdrop: {
     recenterIcon: {
       width: 26,
       height: 26,
-      tintColor: "#333",  // si quieres color blanco o verde UNPHU avísame
+      tintColor: "#333",
     },
+
+ bottomMenuContainer: {
+   position: "absolute",
+   left: 0,
+   right: 0,
+   bottom: 0,
+   height: 80,
+   backgroundColor: "white",
+   borderTopWidth: 1,
+   borderColor: "#e5e7eb",
+   flexDirection: "row",
+   justifyContent: "space-around",
+   alignItems: "center",
+
+   // ✔ sombra iOS
+   shadowColor: "#000",
+   shadowOpacity: 0.15,
+   shadowRadius: 25,
+   shadowOffset: { width: 0, height: -2 },
+
+
+
+   // ✔ sombra Android
+   elevation: 14,
+   zIndex: 99999999,
+   paddingBottom: 40,
+ },
+
 
 });

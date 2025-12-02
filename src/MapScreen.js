@@ -10,6 +10,9 @@ import {
   ScrollView,
   TextInput,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { supabase } from "../utils/supabase";
 import { Keyboard, BackHandler } from "react-native";
 import Filters from "./components/filters";
 import { FILTER_ICONS } from "./components/filters";
@@ -20,8 +23,34 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { Image } from "expo-image";
-import { buildings, foodPlaza } from "../src/buildings";
 import { filterPoints } from "../src/components/filterPoints";
+import MarkerPin from "./components/MarkerPin";
+
+// NUEVOS COMPONENTES
+import BottomMenu from "./components/BottomMenu";
+import FavoritesModal from "./components/FavoritesModal";
+import LegendModal from "./components/LegendModal";
+
+const ICON_SOCCER_2 = require("../assets/icons/locator_icon_soccer.png");
+const ICON_TENNIS_2 = require("../assets/icons/locator_icon_tennis.png");
+const ICON_BASKET_2 = require("../assets/icons/locator_icon_basketball_2.png");
+const ICON_GYM_2 = require("../assets/icons/locator_icon_gym.png");
+const ICON_TREE_2 = require("../assets/icons/locator_icon_tree.png");
+const ICON_BASEBALL_2 = require("../assets/icons/locator_icon_baseball.png");
+const ICON_FOOD_PLAZA = require("../assets/icons/locator_icon_foodplaza.png");
+const ICON_CAFETERIA_2 = require("../assets/icons/locator_icon_cafeteria_2.png");
+
+const ICON_FAVORITES_PRESSED = require("../assets/favorites_pressed.png");
+const ICON_LEGEND_PRESSED = require("../assets/maps_pressed.png");
+const ICON_FILTERS_PRESSED = require("../assets/filters_pressed.png");
+const BUILDING_ICON_WHITE = require("../assets/building_icon_white.png");
+const BUILDING_ICON_GREEN = require("../assets/building_icon_green.png");
+const FAVORITE_UNFILLED_WHITE = require("../assets/favorites_icon_white.png");
+const FAVORITE_FILLED_WHITE = require("../assets/favorites_pressed_white.png");
+const FAVORITE_FILLED_GREEN = require("../assets/favorite_pressed_green.png");
+const UNDO_ICON = require("../assets/undo.png");
+const CLOSE_ICON = require("../assets/close.png");
+
 const ICON_AUDITORIO = require("../assets/Auditorio.png");
 const ICON_COFFEE = require("../assets/Coffee.png");
 const ICON_CREDIT = require("../assets/Credit_Card.png");
@@ -30,7 +59,7 @@ const ICON_ENFERMERIA2 = require("../assets/Enfermeria.png");
 const ICON_LIBRARY2 = require("../assets/Library.png");
 const ICON_VENDING2 = require("../assets/Vending_Machine.png");
 const BG_PATTERN = require("../assets/bg_pattern.png");
-const MAP = require("../assets/Unphu_Mapa_v3.png");
+const MAP = require("../assets/Unphu_Mapa_v4.png");
 const ICON_AC_FALSE = require("../assets/AC_False.png");
 const ICON_PROJECTOR_FALSE = require("../assets/Projector_False.png");
 const ICON_COSMETOLOGY = require("../assets/Cosmetology.png");
@@ -44,7 +73,10 @@ const ICON_TREE = require("../assets/Tree.png");
 const ICON_BASEBALL = require("../assets/Pelota.png");
 const ICON_TOURISM = require("../assets/turista.png");
 const ICON_DERECHO = require("../assets/derecho.png");
-const ICON_RECENTER = require("../assets/center.png")
+const ICON_RECENTER = require("../assets/center.png");
+const ICON_FAVORITES = require("../assets/favoritess.png");
+const ICON_LEGEND = require("../assets/map_s.png");
+const ICON_FILTERS_BTN = require("../assets/filters_icon_2.png");
 
 const IMG_W = 4096;
 const IMG_H = 5120;
@@ -54,10 +86,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const BUILDING_GREEN = "#34A853";
 const FOOD_ORANGE = "#FFA500";
 
-
-
-
-// ===== ICONOS COMO IMÁGENES =====
+// ICONOS
 const ICON_LAB = require("../assets/lab.png");
 const ICON_BATHROOM = require("../assets/bathrooom.png");
 const ICON_CHAIR = require("../assets/chair.png");
@@ -126,447 +155,89 @@ const getCapacityForType = (type) => {
   return null;
 };
 
-// ===== TARJETA TIPO FIGMA =====
-const RoomCard = ({
-  name,
-  capacity,
-  description,
-  ac = undefined,
-  projector = undefined,
-}) => {
-  const lower = name.toLowerCase();
-  const finalDescription = description ?? getAutoDescription(name);
+// ===== HELPERS PARA MARCADORES =====
 
-  const isClassroom = lower.includes("aula");
-  const isLab = lower.includes("laboratorio") || lower.includes("lab");
+const getMarkerForBuilding = (building) => {
+  const id = building.id;
 
-  let mainIcon = { src: ICON_CHAIR, size: 35 };
+  let label = String(id);
+  let iconSource = null;
+  let scaleOverride = 1;
 
-  if (lower.includes("baño") || lower.includes("banos"))
-    mainIcon = { src: ICON_BATHROOM, size: 35 };
-  else if (isLab) mainIcon = { src: ICON_LAB, size: 35 };
-  else if (lower.includes("auditorio"))
-    mainIcon = { src: ICON_AUDITORIO, size: 28 };
-  else if (lower.includes("cafe") || lower.includes("coffee"))
-    mainIcon = { src: ICON_COFFEE, size: 30 };
-  else if (lower.includes("cobro") || lower.includes("pago") || lower.includes("cajero"))
-    mainIcon = { src: ICON_CREDIT, size: 30 };
-  else if (lower.includes("veterinaria") || lower.includes("pet"))
-    mainIcon = { src: ICON_DOG, size: 26 };
-  else if (lower.includes("medico") || lower.includes("dispensario"))
-    mainIcon = { src: ICON_ENFERMERIA2, size: 30 };
-  else if (lower.includes("biblioteca"))
-    mainIcon = { src: ICON_LIBRARY2, size: 30 };
-  else if (lower.includes("vending"))
-    mainIcon = { src: ICON_VENDING2, size: 36 };
-  else if (lower.includes("estetica"))
-    mainIcon = { src: ICON_COSMETOLOGY, size: 35 };
-  else if (lower.includes("amadita"))
-    mainIcon = { src: ICON_AMADITA, size: 35 };
-  else if (
-    lower.includes("direccion") ||
-    lower.includes("academica") ||
-    lower.includes("recepcion") ||
-    lower.includes("recepción") ||
-    lower.includes("administracion") ||
-    lower.includes("reuniones") ||
-    lower.includes("salon") ||
-    lower.includes("secretaria")
-  )
-    mainIcon = { src: ICON_DESK, size: 35 };
-  else if (lower.includes("papeleria"))
-    mainIcon = { src: ICON_PAPELERIA, size: 35 };
-  else if (lower.includes("grande") || lower.includes("pequeño"))
-    mainIcon = { src: ICON_SOCCER, size: 35 };
-  else if (lower.includes("tecnico") || lower.includes("soporte") || lower.includes("informatica"))
-    mainIcon = { src: ICON_IT, size: 35 };
-  else if (lower.includes("matemáticas") || lower.includes("math"))
-    mainIcon = { src: ICON_MATH, size: 35 };
-  else if (lower.includes("verde") || lower.includes("bosque"))
-    mainIcon = { src: ICON_TREE, size: 35 };
-  else if (
-    lower.includes("campo principal") ||
-    lower.includes("campo infantil") ||
-    lower.includes("campo intermedio")
-  )
-    mainIcon = { src: ICON_BASEBALL, size: 35 };
-  else if (lower.includes("turismo") || lower.includes("hoteleria"))
-    mainIcon = { src: ICON_TOURISM, size: 35 };
-  else if (
-    lower.includes("derecho") ||
-    lower.includes("politicas") ||
-    lower.includes("juridicas")
-  )
-    mainIcon = { src: ICON_DERECHO, size: 35 };
+  // Campos de fútbol
+  if (id === 16 || id === 23) {
+    label = null;
+    iconSource = ICON_SOCCER_2;
+  }
 
-  return (
-    <View style={styles.card}>
-      <View style={styles.cardIconWrapper}>
-        <Image
-          source={mainIcon.src}
-          style={{ width: mainIcon.size, height: mainIcon.size }}
-          contentFit="contain"
-        />
-      </View>
+  // Tenis
+  else if (id === 21) {
+    label = null;
+    iconSource = ICON_TENNIS_2;
+  }
 
-      <View style={styles.cardBody}>
-        <Text style={styles.cardTitle}>{name}</Text>
-        <Text style={styles.cardDescription}>{finalDescription}</Text>
+  // Basket
+  else if (id === 20) {
+    label = null;
+    iconSource = ICON_BASKET_2;
+    scaleOverride = 2;
+  }
 
-        <View style={styles.cardFooter}>
-          {/* AC */}
-          {(isClassroom || isLab || ac === true || ac === false) && (
-            <View style={ac === false ? styles.badgeOff : styles.badge}>
-              <Image
-                source={ac === false ? ICON_AC_FALSE : ICON_AIR}
-                style={styles.badgeIcon}
-              />
-              {ac === false ? (
-                <View style={styles.badgeOffOverlay}>
-                  <Text style={styles.badgeOffX}>X</Text>
-                </View>
-              ) : (
-                <Text style={styles.badgeText}>A/C</Text>
-              )}
-            </View>
-          )}
+  // Gimnasio
+  else if (id === 22) {
+    label = null;
+    iconSource = ICON_GYM_2;
+  }
 
-          {/* PROJECTOR */}
-          {(isClassroom || isLab || projector === true || projector === false) && (
-            <View style={projector === false ? styles.badgeOff : styles.badge}>
-              <Image
-                source={projector === false ? ICON_PROJECTOR_FALSE : ICON_PROJECTOR}
-                style={styles.badgeIcon}
-              />
-              {projector === false && (
-                <View style={styles.badgeOffOverlay}>
-                  <Text style={styles.badgeOffX}>X</Text>
-                </View>
-              )}
-            </View>
-          )}
+  // Bosquecito
+  else if (id === 17) {
+    label = null;
+    iconSource = ICON_TREE_2;
+  }
 
-          {/* CAPACIDAD */}
-          {(isClassroom || isLab) && capacity && (
-            <View style={styles.badge}>
-              <Image
-                source={ICON_STUDENTS}
-                style={[styles.badgeIcon, { width: 16, height: 16 }]}
-              />
-              <Text style={styles.badgeText}>{capacity}</Text>
-            </View>
-          )}
-        </View>
-      </View>
-    </View>
-  );
+  // Baseball
+  else if (id === 15) {
+    label = null;
+    iconSource = ICON_BASEBALL_2;
+  }
+
+  // Edificio 12 → "6A"
+  else if (id === 12) {
+    label = "6A";
+  }
+
+  // Edificio 13 → "12"
+  else if (id === 13) {
+    label = "12";
+  }
+
+  // Edificio 19 → "B"
+  else if (id === 19) {
+    label = "B";
+  }
+
+  return { label, iconSource, scaleOverride };
 };
 
-const ImageCarousel = ({ images }) => {
-  const scrollViewRef = useRef(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
+console.log("ENV CHECK:");
+console.log("URL:", process.env.EXPO_PUBLIC_SUPABASE_URL);
+console.log("KEY:", process.env.EXPO_PUBLIC_SUPABASE_KEY?.slice(0, 15));
 
-  useEffect(() => {
-    setCurrentIndex(0);
-    scrollViewRef.current?.scrollTo({ x: 0, animated: false });
-  }, [images]);
+// ======= STATE PRINCIPAL PARA SUPABASE =======
+const MapScreen = () => {
+  const insets = useSafeAreaInsets();
 
-  const goToIndex = (index) => {
-    scrollViewRef.current?.scrollTo({
-      x: index * SCREEN_WIDTH,
-      animated: true,
-    });
-    setCurrentIndex(index);
-  };
+  const [buildings, setBuildings] = useState([]);
+  const [foodPlaza, setFoodPlaza] = useState([]);
 
-  useEffect(() => {
-    if (!images || images.length <= 1) return;
-    const timer = setInterval(() => {
-      goToIndex((currentIndex + 1) % images.length);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, [currentIndex, images]);
-
-  const onScroll = (event) => {
-    const index = Math.round(
-      event.nativeEvent.contentOffset.x / SCREEN_WIDTH
-    );
-    setCurrentIndex(index);
-  };
-
-  return (
-    <View style={styles.carouselContainer}>
-      <ScrollView
-        ref={scrollViewRef}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={onScroll}
-        style={{ width: SCREEN_WIDTH, height: 200 }}
-      >
-        {images.map((img, i) => (
-          <View key={i} style={styles.carouselImage}>
-            {img.fit === "contain" && (
-              <Image
-                source={img.source}
-                style={StyleSheet.absoluteFill}
-                contentFit="cover"
-                blurRadius={10}
-              />
-            )}
-            <Image
-              source={img.source}
-              style={StyleSheet.absoluteFill}
-              contentFit={img.fit}
-            />
-          </View>
-        ))}
-      </ScrollView>
-
-      {images.length > 1 && (
-        <>
-          <Pressable
-            style={[styles.arrow, styles.arrowLeft]}
-            onPress={() =>
-              goToIndex((currentIndex - 1 + images.length) % images.length)
-            }
-          >
-            <Text style={styles.arrowText}>‹</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.arrow, styles.arrowRight]}
-            onPress={() => goToIndex((currentIndex + 1) % images.length)}
-          >
-            <Text style={styles.arrowText}>›</Text>
-          </Pressable>
-        </>
-      )}
-    </View>
-  );
-};
-
-// --- MODAL DE EDIFICIOS ---
-const BuildingModal = ({ building, onClose }) => {
-  if (!building) return null;
-
-  const [activeFloor, setActiveFloor] = useState(
-    Object.keys(building.floors)[0]
-  );
-  const floorScrollViewRef = useRef(null);
-
-  useEffect(() => {
-    floorScrollViewRef.current?.scrollTo({ y: 0, animated: false });
-  }, [activeFloor]);
-
-  return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={!!building}
-      onRequestClose={onClose}
-    >
-      <View style={styles.buildingModalOverlay}>
-        <View style={styles.fullScreenModal}>
-          <View style={styles.modalHeader}>
-            <View style={styles.modalHeaderTextWrapper}>
-              <Text style={styles.modalHeaderTitle}>{building.name}</Text>
-              <Text style={styles.modalHeaderSubtitle}>
-                {building.subtitle}
-              </Text>
-            </View>
-
-            <Pressable style={styles.modalHeaderClose} onPress={onClose}>
-              <Text style={styles.modalHeaderCloseText}>X</Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.modalBody}>
-            <ImageCarousel images={building.images} />
-
-            <View style={styles.modalInner}>
-              <View style={styles.tabScrollViewContainer}>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.tabContainer}
-                >
-                  {Object.keys(building.floors).map((floor) => (
-                    <Pressable
-                      key={floor}
-                      onPress={() => setActiveFloor(floor)}
-                      style={[
-                        styles.tab,
-                        activeFloor === floor && {
-                          backgroundColor: BUILDING_GREEN,
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.tabText,
-                          activeFloor === floor && styles.activeTabText,
-                        ]}
-                      >
-                        {floor}
-                      </Text>
-                    </Pressable>
-                  ))}
-                </ScrollView>
-              </View>
-
-              <ScrollView
-                ref={floorScrollViewRef}
-                style={{ flex: 1 }}
-                contentContainerStyle={{ paddingBottom: 24 }}
-              >
-                {building.floors[activeFloor].map((item, index) => (
-                  <RoomCard
-                    key={index}
-                    name={item.name}
-                    capacity={item.capacity}
-                    description={item.description}
-                    ac={item.AC}
-                    projector={item.projector}
-                  />
-                ))}
-              </ScrollView>
-            </View>
-          </View>
-        </View>
-      </View>
-    </Modal>
-  );
-};
-
-const FoodPlazaModal = ({ plaza, onClose }) => {
-  if (!plaza) return null;
-
-  const [activeVendor, setActiveVendor] = useState(
-    Object.keys(plaza.vendors)[0]
-  );
-
-  const vendorDetails = plaza.vendors[activeVendor];
-  const menuScrollViewRef = useRef(null);
-
-  useEffect(() => {
-    menuScrollViewRef.current?.scrollTo({ y: 0, animated: false });
-  }, [activeVendor]);
-
-  return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={!!plaza}
-      onRequestClose={onClose}
-    >
-      <Pressable style={styles.modalBackdrop} onPress={onClose} />
-
-      <View style={styles.modalContainer}>
-        <Pressable style={styles.closeButton} onPress={onClose}>
-          <Text style={[styles.closeButtonText, { color: FOOD_ORANGE }]}>
-            X
-          </Text>
-        </Pressable>
-
-        <View style={styles.modalContent}>
-          <Text style={[styles.modalTitle, { color: FOOD_ORANGE }]}>
-            {plaza.name}
-          </Text>
-
-          <ImageCarousel images={vendorDetails.images} />
-
-          <View style={styles.tabScrollViewContainer}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.tabContainer}
-            >
-              {Object.keys(plaza.vendors).map((vendorName) => (
-                <Pressable
-                  key={vendorName}
-                  onPress={() => setActiveVendor(vendorName)}
-                  style={[
-                    styles.tab,
-                    activeVendor === vendorName && {
-                      backgroundColor: FOOD_ORANGE,
-                    },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.tabText,
-                      activeVendor === vendorName && styles.activeTabText,
-                    ]}
-                  >
-                    {vendorName}
-                  </Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-          </View>
-
-          <Text
-            style={{
-              textAlign: "center",
-              marginTop: 4,
-              marginBottom: 8,
-              color: "#6B7280",
-              fontSize: 14,
-              fontStyle: "italic",
-            }}
-          >
-            Horario: {vendorDetails.schedule}
-          </Text>
-
-          <ScrollView
-            ref={menuScrollViewRef}
-            style={{ flex: 1 }}
-            contentContainerStyle={{ paddingBottom: 24 }}
-          >
-            {vendorDetails.menu.map((menuItem, index) => (
-              <View
-                key={index}
-                style={{
-                  flexDirection: "row",
-                  paddingVertical: 10,
-                  paddingHorizontal: 8,
-                  justifyContent: "space-between",
-                  borderBottomWidth: 1,
-                  borderColor: "#E5E7EB",
-                }}
-              >
-                <Text style={{ fontSize: 16, color: "#374151" }}>
-                  {menuItem.item}
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: "600",
-                    color: FOOD_ORANGE,
-                  }}
-                >
-                  {menuItem.price}
-                </Text>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-      </View>
-    </Modal>
-  );
-};
-
-export default function MapScreen() {
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [selectedFoodPlaza, setSelectedFoodPlaza] = useState(null);
 
-  const [filtersVisible, setFiltersVisible] = useState(false);
+  // círculos invisibles pero touchables
+  const showBuildingCircles = false;
+  const showFoodCircles = false;
 
- const showBuildingCircles = false;   // pon en false para esconder
- const showFoodCircles = false;
-
-
-  // ✅ Filtros (como antes)
+  // filtros
   const [filters, setFilters] = useState({
     bathrooms: false,
     vending: false,
@@ -576,17 +247,193 @@ export default function MapScreen() {
     studyAreas: false,
   });
 
-  // ===== SEARCH STATE =====
+  // search
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
 
-  //======= ZOOM Y PAN =======
-const minScale = (Math.min(SCREEN_WIDTH / IMG_W, SCREEN_HEIGHT / IMG_H)) * 1;
-const maxScale = 1;
+  // estados bottom menu / modales
+  const [favoritesPressed, setFavoritesPressed] = useState(false);
+  const [legendPressed, setLegendPressed] = useState(false);
+  const [filtersPressed, setFiltersPressed] = useState(false);
+  const [filtersVisible, setFiltersVisible] = useState(false);
+  const [favoritesModalVisible, setFavoritesModalVisible] = useState(false);
+  const [legendModalVisible, setLegendModalVisible] = useState(false);
+
+  const [favoritesList, setFavoritesList] = useState([]);
+  const [lastRemoved, setLastRemoved] = useState(null);
+
+  // --- TOAST ---
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastVisible, setToastVisible] = useState(false);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setToastVisible(true);
+    setTimeout(() => {
+      setToastVisible(false);
+    }, 1500);
+  };
+
+  const toggleFavorite = (building) => {
+    const isFav = favoritesList.some((b) => b.id === building.id);
+
+    if (isFav) {
+      const updated = favoritesList.filter((b) => b.id !== building.id);
+      setFavoritesList(updated);
+      setLastRemoved(building);
+      showToast("Edificio eliminado de favoritos");
+    } else {
+      const updated = [...favoritesList, building];
+      setFavoritesList(updated);
+      setLastRemoved(null);
+      showToast("Edificio agregado a favoritos");
+    }
+  };
+
+  useEffect(() => {
+    const loadFavorites = async () => {
+      try {
+        const raw = await AsyncStorage.getItem("favoritesList");
+        if (raw) {
+          setFavoritesList(JSON.parse(raw));
+        }
+      } catch (e) {
+        console.log("Error loading favorites", e);
+      }
+    };
+    loadFavorites();
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.setItem("favoritesList", JSON.stringify(favoritesList));
+  }, [favoritesList]);
+
+  const handleUndo = () => {
+    if (!lastRemoved) {
+      alert("No hay acciones para deshacer.");
+      return;
+    }
+    setFavoritesList([...favoritesList, lastRemoved]);
+    setLastRemoved(null);
+  };
+
+  const renderFavoriteItem = (b, index) => {
+    const isGreen = index % 2 === 0;
+
+    return (
+      <Pressable
+        key={b.id}
+        onPress={() => {
+          setSelectedFoodPlaza(false);
+          setSelectedBuilding(b);
+        }}
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          paddingVertical: 14,
+          paddingHorizontal: 16,
+          backgroundColor: isGreen ? "#34A853" : "white",
+          borderBottomWidth: 1,
+          borderColor: "#e5e7eb",
+        }}
+      >
+        <Image
+          source={isGreen ? BUILDING_ICON_WHITE : BUILDING_ICON_GREEN}
+          style={{ width: 22, height: 22 }}
+        />
+
+        <Text
+          style={{
+            flex: 1,
+            marginLeft: 12,
+            fontSize: 17,
+            fontWeight: "600",
+            color: isGreen ? "white" : "#34A853",
+          }}
+        >
+          {b.name}
+        </Text>
+
+        <Pressable onPress={() => toggleFavorite(b)} style={{ padding: 8 }}>
+          <Image
+            source={isGreen ? FAVORITE_FILLED_WHITE : FAVORITE_FILLED_GREEN}
+            style={{ width: 22, height: 22 }}
+          />
+        </Pressable>
+      </Pressable>
+    );
+  };
+
+  // ======== CARGA DE DATOS DE SUPABASE ========
+  const loadBuildings = async () => {
+    console.log("🔍 Consultando buildings en Supabase...");
+    const { data, error } = await supabase
+      .from("buildings")
+      .select("id, name, subtitle, x, y, radius, images, floors");
+
+    if (error) {
+      console.log("❌ Error cargando buildings:", error);
+      console.log("👀 buildings state:", buildings.length, buildings);
+      return;
+    }
+
+    console.log("📌 DATA RAW:", data);
+
+    const normalized = (data || []).map((b) => ({
+      ...b,
+      images: b.images || [],
+      floors: b.floors || {},
+    }));
+
+    console.log("✅ Buildings NORMALIZED:", normalized);
+    setBuildings(normalized);
+  };
+
+  // SOLO UNA VEZ: evitamos duplicado de useEffect
+  useEffect(() => {
+    loadBuildings();
+  }, []);
+
+  const loadFoodPlazas = async () => {
+    try {
+      console.log("🔍 Consultando food plazas en Supabase...");
+
+      const { data, error } = await supabase.from("food_places").select("*");
+
+      if (error) {
+        console.error("❌ Error en Supabase food:", error);
+        return [];
+      }
+
+      console.log("📌 FOOD PLAZA RAW:", JSON.stringify(data, null, 2));
+      return data;
+    } catch (err) {
+      console.error("❌ Error cargando food plaza:", err);
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    const fetchFoodPlazas = async () => {
+      const data = await loadFoodPlazas();
+      setFoodPlaza(data || []);
+    };
+    fetchFoodPlazas();
+  }, []);
+
+  // ======== SCROLL / PAN / ZOOM ========
+  const minScale =
+    (Math.min(SCREEN_WIDTH / IMG_W, SCREEN_HEIGHT / IMG_H)) * 1;
+  const maxScale = 1;
 
   const scale = useSharedValue(minScale * 1.5);
   const savedScale = useSharedValue(minScale);
+
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const savedTranslateX = useSharedValue(0);
+  const savedTranslateY = useSharedValue(0);
 
   useEffect(() => {
     const initialScale = minScale * 3;
@@ -598,11 +445,6 @@ const maxScale = 1;
     translateX.value = initialOffsetX;
     translateY.value = initialOffsetY;
   }, []);
-
-  const translateX = useSharedValue(0);
-  const translateY = useSharedValue(0);
-  const savedTranslateX = useSharedValue(0);
-  const savedTranslateY = useSharedValue(0);
 
   const clampToBounds = () => {
     "worklet";
@@ -650,9 +492,17 @@ const maxScale = 1;
     ],
   }));
 
-  // =============================
-  //  SEARCH ITEMS (buildings + rooms)
-  // =============================
+  const animatedTap = {
+    opacity: filtersPressed || favoritesPressed || legendPressed ? 0.5 : 1,
+    transform: [
+      {
+        scale:
+          filtersPressed || favoritesPressed || legendPressed ? 0.9 : 1,
+      },
+    ],
+  };
+
+  // SEARCH LOGIC (buildings + rooms)
   const searchItems = useMemo(() => {
     const items = [];
 
@@ -666,23 +516,25 @@ const maxScale = 1;
         matchText: `${b.name} ${b.subtitle || ""}`.toLowerCase(),
       });
 
-      Object.entries(b.floors).forEach(([floorName, rooms]) => {
-        rooms.forEach((room) => {
-          items.push({
-            id: `room-${b.id}-${floorName}-${room.name}`,
-            type: "room",
-            title: room.name,
-            subtitle: `${b.name} · ${floorName}`,
-            building: b,
-            floorName,
-            matchText: `${room.name} ${b.name} ${floorName}`.toLowerCase(),
+      if (b.floors) {
+        Object.entries(b.floors).forEach(([floorName, rooms]) => {
+          rooms.forEach((room) => {
+            items.push({
+              id: `room-${b.id}-${floorName}-${room.name}`,
+              type: "room",
+              title: room.name,
+              subtitle: `${b.name} · ${floorName}`,
+              building: b,
+              floorName,
+              matchText: `${room.name} ${b.name} ${floorName}`.toLowerCase(),
+            });
           });
         });
-      });
+      }
     });
 
     return items;
-  }, []);
+  }, [buildings]);
 
   const filteredResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
@@ -692,7 +544,7 @@ const maxScale = 1;
       .slice(0, 8);
   }, [searchQuery, searchItems]);
 
-  // 🔥 BackHandler cierra search
+  // cerrar search con botón atrás
   useEffect(() => {
     const back = BackHandler.addEventListener("hardwareBackPress", () => {
       if (searchFocused || showSearchResults) {
@@ -714,8 +566,8 @@ const maxScale = 1;
     Keyboard.dismiss();
 
     const b = item.building;
-
     const targetScale = minScale * 3;
+
     scale.value = withTiming(targetScale);
 
     const offsetX = (b.x - IMG_W / 2) * targetScale;
@@ -725,19 +577,456 @@ const maxScale = 1;
     translateY.value = withTiming(-offsetY);
   };
 
-  // =============================
-  //  RENDER
-  // =============================
+  // ===== TARJETA TIPO FIGMA =====
+  const RoomCard = ({
+    name,
+    capacity,
+    description,
+    ac = undefined,
+    projector = undefined,
+  }) => {
+    const lower = name.toLowerCase();
+    const finalDescription = description ?? getAutoDescription(name);
+
+    const isClassroom = lower.includes("aula");
+    const isLab = lower.includes("laboratorio") || lower.includes("lab");
+
+    let mainIcon = { src: ICON_CHAIR, size: 35 };
+
+    if (lower.includes("baño") || lower.includes("banos"))
+      mainIcon = { src: ICON_BATHROOM, size: 35 };
+    else if (isLab) mainIcon = { src: ICON_LAB, size: 35 };
+    else if (lower.includes("auditorio"))
+      mainIcon = { src: ICON_AUDITORIO, size: 28 };
+    else if (lower.includes("cafe") || lower.includes("coffee"))
+      mainIcon = { src: ICON_COFFEE, size: 30 };
+    else if (lower.includes("cobro") || lower.includes("pago") || lower.includes("cajero"))
+      mainIcon = { src: ICON_CREDIT, size: 30 };
+    else if (lower.includes("veterinaria") || lower.includes("pet"))
+      mainIcon = { src: ICON_DOG, size: 26 };
+    else if (lower.includes("medico") || lower.includes("dispensario"))
+      mainIcon = { src: ICON_ENFERMERIA2, size: 30 };
+    else if (lower.includes("biblioteca"))
+      mainIcon = { src: ICON_LIBRARY2, size: 30 };
+    else if (lower.includes("vending"))
+      mainIcon = { src: ICON_VENDING2, size: 36 };
+    else if (lower.includes("estetica"))
+      mainIcon = { src: ICON_COSMETOLOGY, size: 35 };
+    else if (lower.includes("amadita"))
+      mainIcon = { src: ICON_AMADITA, size: 35 };
+    else if (
+      lower.includes("direccion") ||
+      lower.includes("academica") ||
+      lower.includes("recepcion") ||
+      lower.includes("recepción") ||
+      lower.includes("administracion") ||
+      lower.includes("reuniones") ||
+      lower.includes("salon") ||
+      lower.includes("secretaria")
+    )
+      mainIcon = { src: ICON_DESK, size: 35 };
+    else if (lower.includes("papeleria"))
+      mainIcon = { src: ICON_PAPELERIA, size: 35 };
+    else if (lower.includes("grande") || lower.includes("pequeño"))
+      mainIcon = { src: ICON_SOCCER, size: 35 };
+    else if (lower.includes("tecnico") || lower.includes("soporte") || lower.includes("informatica"))
+      mainIcon = { src: ICON_IT, size: 35 };
+    else if (lower.includes("matemáticas") || lower.includes("math"))
+      mainIcon = { src: ICON_MATH, size: 35 };
+    else if (lower.includes("verde") || lower.includes("bosque"))
+      mainIcon = { src: ICON_TREE, size: 35 };
+    else if (
+      lower.includes("campo principal") ||
+      lower.includes("campo infantil") ||
+      lower.includes("campo intermedio")
+    )
+      mainIcon = { src: ICON_BASEBALL, size: 35 };
+    else if (lower.includes("turismo") || lower.includes("hoteleria"))
+      mainIcon = { src: ICON_TOURISM, size: 35 };
+    else if (
+      lower.includes("derecho") ||
+      lower.includes("politicas") ||
+      lower.includes("juridicas")
+    )
+      mainIcon = { src: ICON_DERECHO, size: 35 };
+
+    return (
+      <View style={styles.card}>
+        <View style={styles.cardIconWrapper}>
+          <Image
+            source={mainIcon.src}
+            style={{ width: mainIcon.size, height: mainIcon.size }}
+            contentFit="contain"
+          />
+        </View>
+
+        <View style={styles.cardBody}>
+          <Text style={styles.cardTitle}>{name}</Text>
+          <Text style={styles.cardDescription}>{finalDescription}</Text>
+
+          <View style={styles.cardFooter}>
+            {(isClassroom || isLab || ac === true || ac === false) && (
+              <View style={ac === false ? styles.badgeOff : styles.badge}>
+                <Image
+                  source={ac === false ? ICON_AC_FALSE : ICON_AIR}
+                  style={styles.badgeIcon}
+                />
+                {ac === false ? (
+                  <View style={styles.badgeOffOverlay}>
+                    <Text style={styles.badgeOffX}>X</Text>
+                  </View>
+                ) : (
+                  <Text style={styles.badgeText}>A/C</Text>
+                )}
+              </View>
+            )}
+
+            {(isClassroom || isLab || projector === true || projector === false) && (
+              <View style={projector === false ? styles.badgeOff : styles.badge}>
+                <Image
+                  source={projector === false ? ICON_PROJECTOR_FALSE : ICON_PROJECTOR}
+                  style={styles.badgeIcon}
+                />
+                {projector === false && (
+                  <View style={styles.badgeOffOverlay}>
+                    <Text style={styles.badgeOffX}>X</Text>
+                  </View>
+                )}
+              </View>
+            )}
+
+            {(isClassroom || isLab) && capacity && (
+              <View style={styles.badge}>
+                <Image
+                  source={ICON_STUDENTS}
+                  style={[styles.badgeIcon, { width: 16, height: 16 }]}
+                />
+                <Text style={styles.badgeText}>{capacity}</Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  // ======================================================
+  // =============== IMAGE CAROUSEL =======================
+  // ======================================================
+  const ImageCarousel = ({ images, height = 200, noPadding = false }) => {
+    const scrollViewRef = useRef(null);
+    const [carouselWidth, setCarouselWidth] = useState(SCREEN_WIDTH - 60);
+
+    const onLayout = (event) => {
+      const w = event.nativeEvent.layout.width;
+      setCarouselWidth(w);
+    };
+
+    return (
+      <View
+        onLayout={onLayout}
+        style={{
+          width: "100%",
+          height,
+          overflow: "hidden",
+          borderRadius: noPadding ? 0 : 20,
+          marginTop: noPadding ? 0 : 10,
+          marginBottom: noPadding ? 0 : 10,
+        }}
+      >
+        <ScrollView
+          ref={scrollViewRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          style={{ width: "100%", height }}
+        >
+          {images?.map((img, i) => {
+            const src =
+              typeof img.source === "string" ? { uri: img.source } : img.source;
+
+            return (
+              <View key={i} style={{ width: carouselWidth, height }}>
+                <Image
+                  source={src}
+                  style={{ width: "100%", height: "100%" }}
+                  contentFit={img.fit || "cover"}
+                />
+              </View>
+            );
+          })}
+        </ScrollView>
+      </View>
+    );
+  };
+
+  const BuildingModal = ({ building, onClose }) => {
+    if (!building) return null;
+
+    const [activeFloor, setActiveFloor] = useState(
+      Object.keys(building.floors)[0]
+    );
+    const floorScrollViewRef = useRef(null);
+
+    useEffect(() => {
+      floorScrollViewRef.current?.scrollTo({ y: 0, animated: false });
+    }, [activeFloor]);
+
+    return (
+      <Modal
+        animationType="slide"
+        transparent
+        visible={!!building}
+        onRequestClose={onClose}
+      >
+        <View style={styles.buildingModalOverlay}>
+          <View style={styles.fullScreenModal}>
+            <View style={styles.modalHeader}>
+              <View style={styles.modalHeaderTextWrapper}>
+                <Text style={styles.modalHeaderTitle}>{building.name}</Text>
+                <Text style={styles.modalHeaderSubtitle}>
+                  {building.subtitle}
+                </Text>
+              </View>
+
+              <Pressable
+                onPress={() => toggleFavorite(building)}
+                style={{
+                  position: "absolute",
+                  top: 10,
+                  right: 300,
+                  padding: 10,
+                  zIndex: 20,
+                }}
+              >
+                <Image
+                  source={
+                    favoritesList.some((b) => b.id === building.id)
+                      ? FAVORITE_FILLED_WHITE
+                      : FAVORITE_UNFILLED_WHITE
+                  }
+                  style={{ width: 26, height: 26 }}
+                  contentFit="contain"
+                />
+              </Pressable>
+
+              <Pressable style={styles.modalHeaderClose} onPress={onClose}>
+                <Text style={styles.modalHeaderCloseText}>X</Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.modalBody}>
+              <ImageCarousel
+                images={building.images}
+                height={200}
+                noPadding
+              />
+
+              <View style={styles.modalTabsWrapper}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.tabContainer}
+                >
+                  {Object.keys(building.floors).map((floor) => (
+                    <Pressable
+                      key={floor}
+                      onPress={() => setActiveFloor(floor)}
+                      style={[
+                        styles.tab,
+                        activeFloor === floor && {
+                          backgroundColor: BUILDING_GREEN,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.tabText,
+                          activeFloor === floor && styles.activeTabText,
+                        ]}
+                      >
+                        {floor}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+
+              <View style={styles.modalInner}>
+                <ScrollView
+                  ref={floorScrollViewRef}
+                  style={{ flex: 1 }}
+                  contentContainerStyle={{ paddingBottom: 5 }}
+                >
+                  {building.floors[activeFloor].map((item, index) => (
+                    <RoomCard
+                      key={index}
+                      name={item.name}
+                      capacity={item.capacity}
+                      description={item.description}
+                      ac={item.AC}
+                      projector={item.projector}
+                    />
+                  ))}
+                </ScrollView>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    );
+  };
+
+  const FoodPlazaModal = ({ plaza, onClose }) => {
+    if (!plaza) return null;
+
+    const vendorKeys = Object.keys(plaza.vendors || {});
+    const firstVendor = vendorKeys.length > 0 ? vendorKeys[0] : null;
+
+    const [activeVendor, setActiveVendor] = useState(firstVendor);
+
+    const vendorDetails =
+      (activeVendor && plaza.vendors?.[activeVendor]) || {
+        schedule: "No disponible",
+        images: [],
+        menu: [],
+      };
+
+    const menuScrollViewRef = useRef(null);
+
+    useEffect(() => {
+      menuScrollViewRef.current?.scrollTo({ y: 0, animated: false });
+    }, [activeVendor]);
+
+    return (
+      <Modal
+        animationType="slide"
+        transparent
+        visible={!!plaza}
+        onRequestClose={onClose}
+      >
+        <Pressable style={styles.modalBackdrop} onPress={onClose} />
+
+        <View style={styles.modalContainer}>
+          <Pressable style={styles.closeButton} onPress={onClose}>
+            <Text style={[styles.closeButtonText, { color: FOOD_ORANGE }]}>
+              X
+            </Text>
+          </Pressable>
+
+          <View style={styles.modalContent}>
+            <Text style={[styles.modalTitle, { color: FOOD_ORANGE }]}>
+              {plaza.name}
+            </Text>
+
+            <ImageCarousel images={vendorDetails.images || []} />
+
+            <View style={styles.tabScrollViewContainer}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.tabContainer}
+              >
+                {vendorKeys.map((vendorName) => (
+                  <Pressable
+                    key={vendorName}
+                    onPress={() => setActiveVendor(vendorName)}
+                    style={[
+                      styles.tab,
+                      activeVendor === vendorName && {
+                        backgroundColor: FOOD_ORANGE,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.tabText,
+                        activeVendor === vendorName && styles.activeTabText,
+                      ]}
+                    >
+                      {vendorName}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
+
+            <Text
+              style={{
+                textAlign: "center",
+                marginTop: 4,
+                marginBottom: 8,
+                color: "#6B7280",
+                fontSize: 14,
+                fontStyle: "italic",
+              }}
+            >
+              Horario: {vendorDetails.schedule}
+            </Text>
+
+            <ScrollView
+              ref={menuScrollViewRef}
+              style={{ flex: 1 }}
+              contentContainerStyle={{ paddingBottom: 24 }}
+            >
+              {(vendorDetails.menu || []).length === 0 ? (
+                <Text
+                  style={{
+                    textAlign: "center",
+                    marginTop: 20,
+                    fontSize: 16,
+                    color: "#6B7280",
+                  }}
+                >
+                  No hay menú disponible.
+                </Text>
+              ) : (
+                vendorDetails.menu.map((menuItem, index) => (
+                  <View
+                    key={index}
+                    style={{
+                      flexDirection: "row",
+                      paddingVertical: 10,
+                      paddingHorizontal: 8,
+                      justifyContent: "space-between",
+                      borderBottomWidth: 1,
+                      borderColor: "#E5E7EB",
+                    }}
+                  >
+                    <Text style={{ fontSize: 16, color: "#374151" }}>
+                      {menuItem.item}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 16,
+                        fontWeight: "600",
+                        color: FOOD_ORANGE,
+                      }}
+                    >
+                      {menuItem.price}
+                    </Text>
+                  </View>
+                ))
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+    );
+  };
+
+  // ======================================================
+  // ======================= RENDER ========================
+  // ======================================================
   return (
     <View style={styles.screen}>
-      {/* BG */}
       <Image
         source={BG_PATTERN}
         style={styles.backgroundPattern}
         contentFit="cover"
       />
 
-      {/* HEADER */}
+      {/* ----- TOP BAR ----- */}
       <View style={styles.topBarWrapper} pointerEvents="box-none">
         <View style={styles.topBar}>
           <Image
@@ -746,7 +1035,7 @@ const maxScale = 1;
             contentFit="contain"
           />
 
-          {/* BUSCADOR */}
+          {/* ------ SEARCH BAR ------ */}
           <View style={styles.searchBarNew}>
             <Image
               source={require("../assets/lupa.png")}
@@ -784,20 +1073,10 @@ const maxScale = 1;
               </Pressable>
             )}
           </View>
-
-          <Pressable
-            style={styles.filterBtnNew}
-            onPress={() => setFiltersVisible(true)}
-          >
-            <Text style={styles.filterIcon}>☰</Text>
-          </Pressable>
-
-
-
         </View>
       </View>
 
-      {/* SEARCH RESULTS */}
+      {/* ------- SEARCH RESULTS ------- */}
       {showSearchResults && filteredResults.length > 0 && (
         <View style={styles.searchResultsContainer}>
           <ScrollView keyboardShouldPersistTaps="handled">
@@ -808,14 +1087,15 @@ const maxScale = 1;
                 onPress={() => handleSelectResult(item)}
               >
                 <Text style={styles.searchResultTitle}>{item.title}</Text>
-                <Text style={styles.searchResultSubtitle}>{item.subtitle}</Text>
+                <Text style={styles.searchResultSubtitle}>
+                  {item.subtitle}
+                </Text>
               </Pressable>
             ))}
           </ScrollView>
         </View>
       )}
 
-      {/* TAP GLOBAL PARA CERRAR SEARCH */}
       {(searchFocused || showSearchResults) && (
         <Pressable
           style={styles.globalTapClose}
@@ -827,7 +1107,7 @@ const maxScale = 1;
         />
       )}
 
-      {/* OVERLAY FILTROS */}
+      {/* ------ OVERLAY FILTROS ------ */}
       {filtersVisible && (
         <Pressable
           style={styles.filterOverlay}
@@ -835,7 +1115,6 @@ const maxScale = 1;
         />
       )}
 
-      {/* PANEL DE FILTROS */}
       <Filters
         visible={filtersVisible}
         onClose={() => setFiltersVisible(false)}
@@ -843,7 +1122,7 @@ const maxScale = 1;
         setFilters={setFilters}
       />
 
-      {/* MAPA */}
+      {/* ===================== MAPA ===================== */}
       <GestureDetector gesture={composedGesture}>
         <Animated.View>
           <Animated.View
@@ -854,7 +1133,22 @@ const maxScale = 1;
           >
             <Image source={MAP} style={{ flex: 1 }} contentFit="cover" />
 
-            {/* 🔵 MARCADORES DE FILTROS */}
+            {buildings.map((b) => {
+              const { label, iconSource } = getMarkerForBuilding(b);
+
+              return (
+                <MarkerPin
+                  key={`pin-${b.id}`}
+                  x={b.x}
+                  y={b.y}
+                  label={label}
+                  iconSource={iconSource}
+                  onPress={() => setSelectedBuilding(b)}
+                />
+              );
+            })}
+
+            {/* 🔵 ICONOS DE FILTROS */}
             {Object.keys(filters).map(
               (key) =>
                 filters[key] &&
@@ -876,10 +1170,7 @@ const maxScale = 1;
                 ))
             )}
 
-            {/* CÍRCULOS BUILDINGS */}
-
-
-            {/* CÍRCULOS BUILDINGS */}
+            {/* CIRCULOS DE EDIFICIOS */}
             {buildings.map((b) => (
               <Pressable
                 key={b.id}
@@ -891,16 +1182,12 @@ const maxScale = 1;
                     width: b.radius * 2,
                     height: b.radius * 2,
                     borderRadius: b.radius,
-
-                    // 👇 si showBuildingCircles es false → invisible pero touchable
                     backgroundColor: showBuildingCircles
                       ? "rgba(52,168,83,0.25)"
                       : "transparent",
-
-                       borderWidth: 0,
-                              borderColor: "transparent",
-                              shadowColor: "transparent",
-                              elevation: 0,
+                    borderWidth: 0,
+                    borderColor: "transparent",
+                    elevation: 0,
                   },
                 ]}
                 onPress={() => setSelectedBuilding(b)}
@@ -919,15 +1206,12 @@ const maxScale = 1;
                     width: f.radius * 2,
                     height: f.radius * 2,
                     borderRadius: f.radius,
-
-                    // 👇 invisible pero sigue funcionando
                     backgroundColor: showFoodCircles
                       ? "rgba(255,165,0,0.45)"
                       : "transparent",
-                       borderWidth: 0,
-                              borderColor: "transparent",
-                              shadowColor: "transparent",
-                              elevation: 0,
+                    borderWidth: 0,
+                    borderColor: "transparent",
+                    elevation: 0,
                   },
                 ]}
                 onPress={() => setSelectedFoodPlaza(f)}
@@ -937,6 +1221,7 @@ const maxScale = 1;
         </Animated.View>
       </GestureDetector>
 
+      {/* ===== RECENTER BUTTON ===== */}
       <Pressable
         style={styles.recenterCircle}
         onPress={() => {
@@ -944,21 +1229,23 @@ const maxScale = 1;
 
           scale.value = withTiming(initialScale, { duration: 300 });
 
-          const initialOffsetX = -(IMG_W * initialScale - SCREEN_WIDTH) / 1000;
-          const initialOffsetY = -(IMG_H * initialScale - SCREEN_HEIGHT) / 500;
+          const initialOffsetX =
+            -(IMG_W * initialScale - SCREEN_WIDTH) / 1000;
+          const initialOffsetY =
+            -(IMG_H * initialScale - SCREEN_HEIGHT) / 500;
 
           translateX.value = withTiming(initialOffsetX, { duration: 300 });
           translateY.value = withTiming(initialOffsetY, { duration: 300 });
         }}
       >
         <Image
-        source={ICON_RECENTER}
-        style={styles.recenterIcon}
-        contentFit="contain"
+          source={ICON_RECENTER}
+          style={styles.recenterIcon}
+          contentFit="contain"
         />
       </Pressable>
 
-      {/* MODALES */}
+      {/* MODALES DE EDIFICIO / FOOD PLAZA */}
       <BuildingModal
         building={selectedBuilding}
         onClose={() => setSelectedBuilding(null)}
@@ -967,6 +1254,74 @@ const maxScale = 1;
         plaza={selectedFoodPlaza}
         onClose={() => setSelectedFoodPlaza(null)}
       />
+
+      {/* ===== BOTTOM MENU (SEPARADO) ===== */}
+      <BottomMenu
+        filtersPressed={filtersPressed}
+        favoritesPressed={favoritesPressed}
+        legendPressed={legendPressed}
+        setFiltersPressed={setFiltersPressed}
+        setFavoritesPressed={setFavoritesPressed}
+        setLegendPressed={setLegendPressed}
+        setFiltersVisible={setFiltersVisible}
+        setFavoritesModalVisible={setFavoritesModalVisible}
+        setLegendModalVisible={setLegendModalVisible}
+      />
+
+      {/* ===== MODAL FAVORITOS (SEPARADO) ===== */}
+      <FavoritesModal
+        visible={favoritesModalVisible}
+        onClose={() => {
+          setFavoritesModalVisible(false);
+          setFavoritesPressed(false);
+        }}
+        favoritesList={favoritesList}
+        handleUndo={handleUndo}
+        renderFavoriteItem={renderFavoriteItem}
+        UNDO_ICON={UNDO_ICON}
+        CLOSE_ICON={CLOSE_ICON}
+      />
+
+      {/* ===== MODAL LEYENDA (SEPARADO) ===== */}
+      <LegendModal
+        visible={legendModalVisible}
+        onClose={() => {
+          setLegendModalVisible(false);
+          setLegendPressed(false);
+        }}
+        bottomInset={insets.bottom}
+      />
+
+      {/* ==== TOAST NOTIFICATION ==== */}
+      {toastVisible && (
+        <View
+          pointerEvents="none"
+          style={{
+            position: "absolute",
+            bottom: 120,
+            left: 0,
+            right: 0,
+            alignItems: "center",
+            zIndex: 999999,
+            elevation: 999999,
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "rgba(0,0,0,0.8)",
+              paddingHorizontal: 18,
+              paddingVertical: 10,
+              borderRadius: 14,
+            }}
+          >
+            <Text style={{ color: "white", fontSize: 14 }}>
+              {toastMessage}
+            </Text>
+          </View>
+        </View>
+      )}
     </View>
   );
-}
+};
+
+export default MapScreen;
