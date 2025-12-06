@@ -1,10 +1,7 @@
+// File: src/components/FilterPills.js
 import React from "react";
-import { Pressable, Text } from "react-native";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-} from "react-native-reanimated";
+import { Pressable, Text, View } from "react-native";
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import { Image } from "expo-image";
 
 export default function FilterPill({ label, icon, isOn, onToggle, checkIcon }) {
@@ -40,14 +37,31 @@ export default function FilterPill({ label, icon, isOn, onToggle, checkIcon }) {
           borderColor: isOn ? "#34A853" : "#D1D5DB",
         }}
       >
-        <Image
-          source={isOn ? checkIcon : icon}
-          style={{ width: 22, height: 22, marginRight: 6 }}
-        />
+        {/* círculo blanco detrás del icono */}
+        <View
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: 14,
+            backgroundColor: "white",
+            borderWidth: 1,
+            borderColor: "#E5E7EB",
+            alignItems: "center",
+            justifyContent: "center",
+            marginRight: 8,
+          }}
+        >
+          <Image source={icon} style={{ width: 18, height: 18 }} contentFit="contain" />
+          {isOn && checkIcon && (
+            <Image
+              source={checkIcon}
+              style={{ position: "absolute", right: -4, top: -4, width: 14, height: 14 }}
+              contentFit="contain"
+            />
+          )}
+        </View>
 
-        <Text style={{ fontSize: 15, fontWeight: "600", color: "#374151" }}>
-          {label}
-        </Text>
+        <Text style={{ fontSize: 15, fontWeight: "600", color: "#374151" }}>{label}</Text>
       </Pressable>
     </Animated.View>
   );

@@ -1,43 +1,33 @@
+// File: src/components/filters.js
 import React from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  ScrollView,
-} from "react-native";
-import Animated, {
-  useSharedValue,
-  withTiming,
-  useAnimatedStyle,
-} from "react-native-reanimated";
-import { Image } from "expo-image";
+import { View, Text, Pressable, ScrollView, Modal } from "react-native";
+import Animated, { useSharedValue, withTiming, useAnimatedStyle } from "react-native-reanimated";
 import FilterPill from "./FilterPills";
 
-// ICONO CHECK
+// CHECK
 const CHECK_ICON = require("../../assets/check_green.png");
 
-// ICONOS ORIGINALES
+// ÍCONOS *locator* que pediste para las pills
 export const FILTER_ICONS = {
-  bathrooms: require("../../assets/bathroom_filter.png"),
-  vending: require("../../assets/ending_Machine_Filter_Arreglado.png"),
-  parking: require("../../assets/Parqueo_Filter.png"),
-  labs: require("../../assets/Laboratorio_Filter.png"),
-  greenAreas: require("../../assets/Area_Verde_Filter.png"),
-  studyAreas: require("../../assets/Study_filter.png"),
+  bathrooms:  require("../../assets/icons/bathroom_locator.png"),
+  vending:    require("../../assets/icons/vending_machine_locator.png"),
+  parking:    require("../../assets/icons/parqueos_locator.png"),
+  labs:       require("../../assets/icons/lab_black_locator.png"),
+  greenAreas: require("../../assets/icons/arbol_locator.png"),
+  studyAreas: require("../../assets/icons/study_locator.png"),
 };
 
-export default function Filters({ filters, setFilters, visible, onClose }) {
+function FiltersInner({ filters, setFilters, visible, onClose }) {
   const opacity = useSharedValue(0);
-  const scale = useSharedValue(0.85);
+  const scale = useSharedValue(0.92);
 
-  // Fade + Scale animation
   React.useEffect(() => {
     if (visible) {
       opacity.value = withTiming(1, { duration: 200 });
       scale.value = withTiming(1, { duration: 200 });
     } else {
-      opacity.value = withTiming(0, { duration: 180 });
-      scale.value = withTiming(0.85, { duration: 180 });
+      opacity.value = withTiming(0, { duration: 150 });
+      scale.value = withTiming(0.92, { duration: 150 });
     }
   }, [visible]);
 
@@ -46,14 +36,19 @@ export default function Filters({ filters, setFilters, visible, onClose }) {
     transform: [{ scale: scale.value }],
   }));
 
-  const filterItems = [
-    { key: "parking", label: "Parqueos" },
-    { key: "labs", label: "Laboratorios" },
-    { key: "bathrooms", label: "Baños" },
-    { key: "vending", label: "Máquina Expendedora" },
-    { key: "studyAreas", label: "Salas de Estudio" },
-    { key: "greenAreas", label: "Áreas Verdes" },
-  ];
+  const filterItems = React.useMemo(
+    () => [
+      { key: "parking", label: "Parqueos" },
+      { key: "labs", label: "Laboratorios" },
+      { key: "bathrooms", label: "Baños" },
+      { key: "vending", label: "Máquina Expendedora" },
+      { key: "studyAreas", label: "Salas de Estudio" },
+      { key: "greenAreas", label: "Áreas Verdes" },
+    ],
+    []
+  );
+
+  if (!visible) return null;
 
   const resetFilters = () => {
     const reset = {};
@@ -61,67 +56,74 @@ export default function Filters({ filters, setFilters, visible, onClose }) {
     setFilters(reset);
   };
 
-  // No renderizar si está oculto → evita errores y optimiza
-  if (!visible) return null;
-
   return (
-    <Animated.View
-      style={[
-        modalStyle,
-        {
-          position: "absolute",
-          top: 120,
-          right: 10,
-          width: 365,
-          backgroundColor: "white",
-          borderRadius: 20,
-          padding: 18,
-          shadowColor: "#000",
-          shadowOpacity: 0.15,
-          shadowRadius: 12,
-          elevation: 12,
-          zIndex: 2000,
-        },
-      ]}
+    <Modal
+      transparent
+      visible={visible}
+      animationType="none"
+      hardwareAccelerated
+      onRequestClose={onClose}
     >
-      {/* HEADER */}
-      <View
+      {/* Backdrop táctil */}
+      <Pressable
+        onPress={onClose}
         style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 15,
+          position: "absolute",
+          inset: 0,
+          backgroundColor: "rgba(0,0,0,0.15)",
         }}
+      />
+
+      {/* Card */}
+      <Animated.View
+        style={[
+          modalStyle,
+          {
+            position: "absolute",
+            top: 220,
+            alignSelf: "center",
+            width: 330,
+            backgroundColor: "white",
+            borderRadius: 20,
+            padding: 18,
+            shadowColor: "#000",
+            shadowOpacity: 0.12,
+            shadowRadius: 10,
+            elevation: 10,
+          },
+        ]}
       >
-        <View>
-          <Text style={{ fontSize: 22, fontWeight: "900" }}>Filtros</Text>
-          <Text style={{ fontSize: 13, color: "#6B7280" }}>
-            Sección de filtros
-          </Text>
+        {/* HEADER */}
+        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 15 }}>
+          <View>
+            <Text style={{ fontSize: 22, fontWeight: "900" }}>Filtros</Text>
+            <Text style={{ fontSize: 13, color: "#6B7280" }}>Sección de filtros</Text>
+          </View>
+          <Pressable onPress={resetFilters}>
+            <Text style={{ color: "#34A853", fontWeight: "600" }}>Reiniciar</Text>
+          </Pressable>
         </View>
 
-        <Pressable onPress={resetFilters}>
-          <Text style={{ color: "#34A853", fontWeight: "600" }}>
-            Reiniciar
-          </Text>
-        </Pressable>
-      </View>
-
-      {/* PILLS */}
-      <ScrollView contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap" }}>
-        {filterItems.map((f) => (
-          <FilterPill
-            key={f.key}
-            label={f.label}
-            icon={FILTER_ICONS[f.key]}
-            checkIcon={CHECK_ICON}
-            isOn={filters[f.key]}
-            onToggle={() =>
-              setFilters({ ...filters, [f.key]: !filters[f.key] })
-            }
-          />
-        ))}
-      </ScrollView>
-    </Animated.View>
+        {/* PILLS */}
+        <ScrollView
+          contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap" }}
+          keyboardShouldPersistTaps="handled"
+          removeClippedSubviews
+        >
+          {filterItems.map((f) => (
+            <FilterPill
+              key={f.key}
+              label={f.label}
+              icon={FILTER_ICONS[f.key]}
+              checkIcon={CHECK_ICON}
+              isOn={!!filters[f.key]}
+              onToggle={() => setFilters({ ...filters, [f.key]: !filters[f.key] })}
+            />
+          ))}
+        </ScrollView>
+      </Animated.View>
+    </Modal>
   );
 }
+
+export default React.memo(FiltersInner);

@@ -213,8 +213,8 @@ searchBackdrop: {
 
   pressableArea: {
     position: "absolute",
-    borderWidth: 2,
-    borderColor: "white",
+
+
   },
 
 tabScrollViewContainer: {
@@ -616,7 +616,7 @@ activeTabText: {
     recenterCircle: {
       position: "absolute",
       left: 20,
-      bottom: 70,
+      bottom: 120,
       width: 60,
       height: 60,
       borderRadius: 30,

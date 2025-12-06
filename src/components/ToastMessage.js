@@ -1,4 +1,3 @@
-// ===== ToastMessage.js =====
 import React from "react";
 import { View, Text } from "react-native";
 
@@ -14,7 +13,8 @@ export default function ToastMessage({ visible, message }) {
         left: 0,
         right: 0,
         alignItems: "center",
-        zIndex: 99999,
+        zIndex: 999999999999999,
+        elevation: 999999999999,
       }}
     >
       <View
