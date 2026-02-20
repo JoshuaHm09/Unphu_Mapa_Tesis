@@ -662,5 +662,20 @@ activeTabText: {
    paddingBottom: 40,
  },
 
+ horariosButton: {
+   backgroundColor: "white",
+   width: 34,
+   height: 34,
+   borderRadius: 10,
+   borderWidth: 2,
+   borderColor: "#B9B9B9",
+   justifyContent: "center",
+   alignItems: "center",
+ },
+
+ horariosIcon: {
+ width: 24,
+ height: 24,
+ },
 
 });

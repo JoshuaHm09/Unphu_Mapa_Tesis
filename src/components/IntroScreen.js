@@ -11,15 +11,15 @@ import Animated, {
 export default function IntroScreen({ onFinish }) {
   const { width, height } = Dimensions.get("window");
 
-  // Tamaño base del diseño en Figma
+
   const BASE_W = 412;
   const BASE_H = 917;
 
-  // Escalado flexible
+
   const sW = width / BASE_W;
   const sH = height / BASE_H;
 
-  // ====== SHARED VALUES ======
+
   const leftX = useSharedValue(-289 * sW);
   const leftY = useSharedValue(-92 * sH);
   const leftRot = useSharedValue(155.94);
@@ -35,9 +35,9 @@ export default function IntroScreen({ onFinish }) {
   const circleScale = useSharedValue(0);
   const finalFade = useSharedValue(1);
 
-  // ====== SECUENCIA ======
+
   useEffect(() => {
-    // SOLO animación de salida: cortinas abriéndose
+
     leftX.value = withDelay(
       650,
       withTiming(leftX.value - width * 1.4, {
@@ -54,13 +54,11 @@ export default function IntroScreen({ onFinish }) {
       })
     );
 
-    // Fondo blanco aparece
     whiteOpacity.value = withDelay(
       1100,
       withTiming(1, { duration: 800 })
     );
 
-    // Texto aparece
     textOpacity.value = withDelay(
       1300,
       withTiming(1, { duration: 600 })
@@ -74,7 +72,6 @@ export default function IntroScreen({ onFinish }) {
       })
     );
 
-    // Bola verde se expande
     circleScale.value = withDelay(
       2100,
       withTiming(8, {
@@ -83,17 +80,14 @@ export default function IntroScreen({ onFinish }) {
       })
     );
 
-    // Fade final
     finalFade.value = withDelay(
       2950,
       withTiming(0, { duration: 450 })
     );
 
-    // Ir al mapa
     setTimeout(onFinish, 3500);
   }, []);
 
-  // ====== Animated Styles ======
 
   const leftStyle = useAnimatedStyle(() => ({
     transform: [
@@ -130,7 +124,7 @@ export default function IntroScreen({ onFinish }) {
 
   return (
     <Animated.View style={[styles.container, fadeStyle]}>
-      {/* PANEL IZQUIERDO (cortina diagonal) */}
+
       <Animated.View
         style={[
           styles.panel,
@@ -145,7 +139,7 @@ export default function IntroScreen({ onFinish }) {
         ]}
       />
 
-      {/* PANEL DERECHO (cortina diagonal) */}
+
       <Animated.View
         style={[
           styles.panel,
@@ -160,7 +154,6 @@ export default function IntroScreen({ onFinish }) {
         ]}
       />
 
-      {/* FONDO BLANCO */}
       <Animated.View style={[styles.whiteLayer, whiteStyle]}>
         <Animated.View style={[styles.textWrapper, textStyle]}>
           <Text style={styles.title}>UNPHU</Text>
@@ -168,7 +161,6 @@ export default function IntroScreen({ onFinish }) {
         </Animated.View>
       </Animated.View>
 
-      {/* BOLA EXPANDIÉNDOSE */}
       <Animated.View
         style={[
           styles.circle,

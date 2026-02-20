@@ -8,9 +8,7 @@ import {
 } from "react-native";
 import { Image } from "expo-image";
 
-// =======================
-// IMPORTAMOS ICONOS USADOS EN TU MAPA
-// =======================
+
 
 import BUILDING_ICON_WHITE from "../../assets/building_icon_white.png";
 import FAVORITE_FILLED_GREEN from "../../assets/favorite_pressed_green.png";
@@ -35,7 +33,6 @@ import ICON_BASKET from "../../assets/Basket.png";
 import ICON_DOG from "../../assets/Dog_Paw.png";
 import EDIFICIOS_CIRCULOS from "../../assets/Edi-09.png";
 
-// ❗ NUEVOS ICONOS
 import ICON_AIR from "../../assets/air-conditioner.png";
 import ICON_PROJECTOR from "../../assets/projector.png";
 import ICON_AC_FALSE from "../../assets/AC_False.png";
@@ -47,7 +44,6 @@ import CLOSE_ICON from "../../assets/close.png";
 
 const LegendModal = ({ visible, onClose, bottomInset = 0 }) => {
 
-  // =============== ITEMS DE LEYENDA ===============
   const legendItems = [
     {
       icon: EDIFICIOS_CIRCULOS,
@@ -170,7 +166,7 @@ const LegendModal = ({ visible, onClose, bottomInset = 0 }) => {
   ];
 
 
-  // ======================= UI =======================
+  //  UI
   return (
     <Modal
       transparent
@@ -179,7 +175,7 @@ const LegendModal = ({ visible, onClose, bottomInset = 0 }) => {
       onRequestClose={onClose}
     >
 
-      {/* OVERLAY */}
+      // Overlay
       <Pressable
         onPress={onClose}
         style={{
@@ -192,7 +188,7 @@ const LegendModal = ({ visible, onClose, bottomInset = 0 }) => {
         }}
       />
 
-      {/* CONTENIDO */}
+      // Content
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <View
           style={{
@@ -210,7 +206,7 @@ const LegendModal = ({ visible, onClose, bottomInset = 0 }) => {
           }}
         >
 
-          {/* BOTÓN CLOSE */}
+
           <Pressable
             onPress={onClose}
             hitSlop={20}
@@ -231,7 +227,7 @@ const LegendModal = ({ visible, onClose, bottomInset = 0 }) => {
             />
           </Pressable>
 
-          {/* TÍTULO */}
+          // Title
           <Text
             style={{
               textAlign: "center",
@@ -244,7 +240,7 @@ const LegendModal = ({ visible, onClose, bottomInset = 0 }) => {
             Leyenda
           </Text>
 
-          {/* LISTA */}
+          //LIST
           <ScrollView
             style={{
               maxHeight: 420,
@@ -264,7 +260,7 @@ const LegendModal = ({ visible, onClose, bottomInset = 0 }) => {
                     paddingHorizontal: 10,
                   }}
                 >
-                  {/* ICON BADGE */}
+                  // Icon badge
                  <View
                    style={{
                      width: 42,

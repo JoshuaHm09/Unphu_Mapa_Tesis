@@ -37,7 +37,7 @@ export default function FilterPill({ label, icon, isOn, onToggle, checkIcon }) {
           borderColor: isOn ? "#34A853" : "#D1D5DB",
         }}
       >
-        {/* círculo blanco detrás del icono */}
+
         <View
           style={{
             width: 28,

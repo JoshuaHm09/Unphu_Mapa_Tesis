@@ -23,7 +23,7 @@ const BottomMenu = ({
 }) => {
   return (
     <View style={styles.bottomMenuContainer}>
-      {/* Botón Filtros */}
+      // Boton de Filtros
       <Pressable
         onPress={() => {
           setFiltersPressed(true);
@@ -42,7 +42,7 @@ const BottomMenu = ({
         />
       </Pressable>
 
-      {/* Favoritos */}
+      // Favoritos
       <Pressable
         onPress={() => {
           setFavoritesPressed(true);
@@ -60,7 +60,7 @@ const BottomMenu = ({
         />
       </Pressable>
 
-      {/* Leyenda */}
+       // Leyenda
       <Pressable
         onPress={() => {
           setLegendPressed(true);

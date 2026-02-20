@@ -4,10 +4,9 @@ import { View, Text, Pressable, ScrollView, Modal } from "react-native";
 import Animated, { useSharedValue, withTiming, useAnimatedStyle } from "react-native-reanimated";
 import FilterPill from "./FilterPills";
 
-// CHECK
+
 const CHECK_ICON = require("../../assets/check_green.png");
 
-// ÍCONOS *locator* que pediste para las pills
 export const FILTER_ICONS = {
   bathrooms:  require("../../assets/icons/bathroom_locator.png"),
   vending:    require("../../assets/icons/vending_machine_locator.png"),
@@ -64,7 +63,7 @@ function FiltersInner({ filters, setFilters, visible, onClose }) {
       hardwareAccelerated
       onRequestClose={onClose}
     >
-      {/* Backdrop táctil */}
+
       <Pressable
         onPress={onClose}
         style={{
@@ -74,7 +73,7 @@ function FiltersInner({ filters, setFilters, visible, onClose }) {
         }}
       />
 
-      {/* Card */}
+      // Card
       <Animated.View
         style={[
           modalStyle,
@@ -93,7 +92,7 @@ function FiltersInner({ filters, setFilters, visible, onClose }) {
           },
         ]}
       >
-        {/* HEADER */}
+        // Header
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 15 }}>
           <View>
             <Text style={{ fontSize: 22, fontWeight: "900" }}>Filtros</Text>
@@ -104,7 +103,7 @@ function FiltersInner({ filters, setFilters, visible, onClose }) {
           </Pressable>
         </View>
 
-        {/* PILLS */}
+        // Pills
         <ScrollView
           contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap" }}
           keyboardShouldPersistTaps="handled"

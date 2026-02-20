@@ -22,7 +22,7 @@ export default function MarkerPin({
   const scale = useRef(new Animated.Value(0)).current; // animación inicial
   const tapScale = useRef(new Animated.Value(1)).current; // animación de tap
 
-  // Animación inicial cuando aparece
+  // Animacion icnical cuando aparece
   useEffect(() => {
     const timer = setTimeout(() => {
       Animated.spring(scale, {
@@ -31,29 +31,29 @@ export default function MarkerPin({
         tension: 80,
         useNativeDriver: true,
       }).start();
-    }, 4000); // <- AQUI CAMBIAS EL DELAY (ms)
+    }, 4000); // <- para cambiar el delay
 
     return () => clearTimeout(timer);
   }, []);
 
-  // ANIMACIÓN POP AL PRESIONAR
+  // Animacion de tap
   const handlePress = () => {
     Animated.sequence([
       Animated.spring(tapScale, {
-        toValue: 1.25,   // POP
+        toValue: 1.25,
         tension: 200,
         friction: 5,
         useNativeDriver: true,
       }),
       Animated.spring(tapScale, {
-        toValue: 1,      // regresa
+        toValue: 1,
         tension: 150,
         friction: 6,
         useNativeDriver: true,
       }),
     ]).start();
 
-    // ejecutar el callback del edificio
+
     if (onPress) onPress();
   };
 
@@ -71,20 +71,20 @@ export default function MarkerPin({
       <Animated.View
         style={{
           transform: [
-            { scale },          // animación inicial
-            { scale: tapScale }, // animación de tap
+            { scale },
+            { scale: tapScale },
             { scale: scaleOverride },
           ],
         }}
       >
-        {/* BASE DEL PIN */}
+
         <Image
           source={require("../../assets/markers/locator_base.png")}
           style={{ width: PIN_WIDTH, height: PIN_HEIGHT }}
           resizeMode="contain"
         />
 
-        {/* CONTENIDO */}
+
         <View style={styles.centerContent}>
           {iconSource ? (
             <Image
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
  wrapper: {
    position: "absolute",
    zIndex: 99999,
-   elevation: 99999, // Android
+   elevation: 99999,
    pointerEvents: "box-none",
  },
   centerContent: {

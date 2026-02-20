@@ -11,7 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { Image } from "expo-image";
 
-// Ajusta rutas si fuera necesario
+
 const PINS = {
   bathrooms:  require("../../assets/icons/bathroom_pin_1.png"),
   vending:    require("../../assets/icons/vending_machine_pin.png"),
@@ -27,17 +27,17 @@ export default function AnimatedFilterPin({
   type,
   onPress,
   scaleRef,
-  size = 110,                 // ← controla el tamaño base del pin
-  pulseUpScale = 1.08,       // intensidad del pulso
-  popOffset = 6,             // desplazamiento vertical del “pop”
-  minZoomScale = 0.85,       // clamp inferior del “escala inversa”
-  maxZoomScale = 1.8,        // clamp superior del “escala inversa”
-  intervalMs = 5000,         // periodo total aprox del pulso
+  size = 110,
+  pulseUpScale = 1.08,
+  popOffset = 6,
+  minZoomScale = 0.85,
+  maxZoomScale = 1.8,
+  intervalMs = 5000,
 }) {
   const pulse = useSharedValue(1);
 
   React.useEffect(() => {
-    const upDown = 220;                     // ms subir/bajar
+    const upDown = 220;
     const rest = Math.max(0, intervalMs - upDown * 2);
     pulse.value = withRepeat(
       withSequence(
@@ -59,7 +59,7 @@ export default function AnimatedFilterPin({
 
   const pinSource = PINS[type] || PINS.bathrooms;
 
-  // anclaje por la “punta” del pin
+
   const left = x - size / 2;
   const top = y - size + 6;
 
@@ -72,6 +72,3 @@ export default function AnimatedFilterPin({
   );
 }
 
-// ===== Ejemplo de uso en MapScreen =====
-// Reemplaza donde pintas filtros:
-// <AnimatedFilterPin x={p.x} y={p.y} type={key} scaleRef={scale} size={80} />

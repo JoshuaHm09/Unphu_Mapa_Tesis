@@ -22,9 +22,7 @@ const FavoritesModal = ({
   toggleFavorite,
 }) => {
 
-  // ==========================
-  // ANIMACIÓN DEL UNDO
-  // ==========================
+
   const undoScale = React.useRef(new Animated.Value(1)).current;
 
   const animateUndo = () => {
@@ -42,7 +40,7 @@ const FavoritesModal = ({
       }),
     ]).start();
 
-    handleUndo(); // ejecuta tu lógica de undo
+    handleUndo();
   };
 
   return (
@@ -53,7 +51,7 @@ const FavoritesModal = ({
       onRequestClose={onClose}
     >
 
-      {/* OVERLAY */}
+
       <Pressable
         onPress={onClose}
         style={{
@@ -66,7 +64,7 @@ const FavoritesModal = ({
         }}
       />
 
-      {/* CONTENEDOR CENTRAL */}
+      // Contenedor Centraal
       <View
         style={{
           flex: 1,
@@ -75,7 +73,7 @@ const FavoritesModal = ({
         }}
       >
 
-        {/* CARD PRINCIPAL (VERDE CLARO) */}
+
         <View
           style={{
             width: "88%",
@@ -93,7 +91,7 @@ const FavoritesModal = ({
             elevation: 10,
           }}
         >
-          {/* BOTÓN UNDO CON ANIMACIÓN */}
+
           <Animated.View
             style={{
               position: "absolute",
@@ -115,7 +113,7 @@ const FavoritesModal = ({
             </Pressable>
           </Animated.View>
 
-          {/* BOTÓN CERRAR */}
+
           <Pressable
             onPress={onClose}
             hitSlop={20}
@@ -136,7 +134,7 @@ const FavoritesModal = ({
             />
           </Pressable>
 
-          {/* TÍTULO */}
+
           <Text
             style={{
               textAlign: "center",
@@ -150,7 +148,7 @@ const FavoritesModal = ({
             Favoritos
           </Text>
 
-          {/* CARD BLANCO INTERNO */}
+
           <View
             style={{
               backgroundColor: "white",
@@ -181,7 +179,7 @@ const FavoritesModal = ({
               ) : (
                 favoritesList.map((b, index) => (
                   <View key={b.id}>
-                    {/* ITEM */}
+
                     <Pressable
                       onPress={() => onSelectBuilding(b)}
                       style={{
@@ -191,14 +189,14 @@ const FavoritesModal = ({
                         paddingHorizontal: 18,
                       }}
                     >
-                      {/* ICONO */}
+
                       <Image
                         source={BUILDING_ICON_GREEN}
                         style={{ width: 26, height: 26, marginRight: 14 }}
                         contentFit="contain"
                       />
 
-                      {/* NOMBRE */}
+
                       <Text
                         style={{
                           flex: 1,
@@ -210,7 +208,7 @@ const FavoritesModal = ({
                         {b.name}
                       </Text>
 
-                      {/* CORAZÓN */}
+
                       <Pressable onPress={() => toggleFavorite(b)} hitSlop={10}>
                         <Image
                           source={FAVORITE_FILLED_GREEN}
@@ -220,7 +218,7 @@ const FavoritesModal = ({
                       </Pressable>
                     </Pressable>
 
-                    {/* DIVISOR */}
+
                     {index < favoritesList.length - 1 && (
                       <View
                         style={{

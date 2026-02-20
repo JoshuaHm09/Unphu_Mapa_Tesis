@@ -45,7 +45,7 @@ function BuildingModalInner({
   const floorScrollViewRef = useRef(null);
 
   useEffect(() => {
-    // reset scroll al cambiar de piso
+
     floorScrollViewRef.current?.scrollTo({ y: 0, animated: false });
   }, [activeFloor]);
 
@@ -57,7 +57,6 @@ function BuildingModalInner({
   const isFav = favoritesList?.some?.((b) => b.id === building.id);
 
   const onToggleFav = () => {
-    // animación ligera; no cierra ni re-monta el modal
     heartScale.value = withSequence(
       withSpring(1.2, { damping: 8, stiffness: 200 }),
       withSpring(1, { damping: 8, stiffness: 200 })
@@ -158,8 +157,8 @@ function BuildingModal({
   onClose,
   favoritesList,
   toggleFavorite,
-  RoomCard,       // opcional (reutiliza tu RoomCard del MapScreen)
-  ImageCarousel,  // opcional (reutiliza tu carrusel)
+  RoomCard,
+  ImageCarousel,
 }) {
   if (!building) return null;
 
