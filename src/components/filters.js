@@ -1,4 +1,5 @@
-// File: src/components/filters.js
+
+
 import React from "react";
 import { View, Text, Pressable, ScrollView, Modal } from "react-native";
 import Animated, { useSharedValue, withTiming, useAnimatedStyle } from "react-native-reanimated";

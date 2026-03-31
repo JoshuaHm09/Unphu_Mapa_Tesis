@@ -19,8 +19,8 @@ export default function MarkerPin({
   onPress,
   scaleOverride = 1,
 }) {
-  const scale = useRef(new Animated.Value(0)).current; // animación inicial
-  const tapScale = useRef(new Animated.Value(1)).current; // animación de tap
+  const scale = useRef(new Animated.Value(0)).current; // Animacion inicial
+  const tapScale = useRef(new Animated.Value(1)).current; // Animacion de tap
 
   // Animacion icnical cuando aparece
   useEffect(() => {
@@ -31,7 +31,7 @@ export default function MarkerPin({
         tension: 80,
         useNativeDriver: true,
       }).start();
-    }, 4000); // <- para cambiar el delay
+    }, 3000); // para cambiaar el delay (Menos valor, mas rapido, mas valor mas lento)
 
     return () => clearTimeout(timer);
   }, []);

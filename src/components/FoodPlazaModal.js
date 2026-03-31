@@ -43,7 +43,7 @@ export default function FoodPlazaModal({ plaza, onClose, ImageCarousel }) {
     >
       <Pressable style={styles.modalBackdrop} onPress={onClose} />
       <View style={styles.modalContainer}>
-        {/* CLOSE */}
+        //Closing
         <Pressable style={styles.closeButton} onPress={onClose}>
           <Text style={[styles.closeButtonText, { color: FOOD_ORANGE }]}>
             X

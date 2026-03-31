@@ -42,7 +42,7 @@ const BottomMenu = ({
         />
       </Pressable>
 
-      // Favoritos
+      // Btn Favoritos
       <Pressable
         onPress={() => {
           setFavoritesPressed(true);
@@ -60,7 +60,7 @@ const BottomMenu = ({
         />
       </Pressable>
 
-       // Leyenda
+       // Btn Leyenda
       <Pressable
         onPress={() => {
           setLegendPressed(true);

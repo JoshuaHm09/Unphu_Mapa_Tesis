@@ -53,7 +53,7 @@ export default function AnimatedFilterPin({
   const aStyle = useAnimatedStyle(() => {
     const zoom = Math.min(Math.max(1 / scaleRef.value, minZoomScale), maxZoomScale);
     const s = zoom * pulse.value;
-    const dy = (pulse.value - 1) * -popOffset; // pop leve hacia arriba
+    const dy = (pulse.value - 1) * -popOffset; // este es el pop
     return { transform: [{ translateY: dy }, { scale: s }] };
   });
 

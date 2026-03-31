@@ -66,7 +66,7 @@ function BuildingModalInner({
 
   return (
     <View style={styles.fullScreenModal}>
-      {/* HEADER */}
+      // Header
       <View style={styles.modalHeader}>
         <View style={styles.modalHeaderTextWrapper}>
           <Text style={styles.modalHeaderTitle}>{building.name}</Text>
@@ -92,13 +92,13 @@ function BuildingModalInner({
         </Pressable>
       </View>
 
-      {/* BODY */}
+      // Body
       <View style={styles.modalBody}>
         {ImageCarousel ? (
           <ImageCarousel images={building.images || []} height={200} noPadding />
         ) : null}
 
-        {/* TABS DE PISOS */}
+        // Pill Pisos
         <View style={styles.modalTabsWrapper}>
           <ScrollView
             horizontal
@@ -124,7 +124,7 @@ function BuildingModalInner({
           </ScrollView>
         </View>
 
-        {/* ROOMS */}
+        // Rooms
         <View style={styles.modalInner}>
           <ScrollView
             ref={floorScrollViewRef}

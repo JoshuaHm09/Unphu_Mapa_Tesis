@@ -1,6 +1,7 @@
-// File: src/uiIcons.js
+
 
 export const UI_ICONS = {
+
   // ===== MAP PINS =====
   ICON_SOCCER_2: require("../assets/futbol.png"),
   ICON_TENNIS_2: require("../assets/Tennis.png"),
@@ -46,7 +47,7 @@ export const UI_ICONS = {
 
   // ===== MAP =====
   BG_PATTERN: require("../assets/bg_pattern.png"),
-  MAP: require("../assets/Unphu_Mapa_v4.png"),
+  MAP: require("../assets/Unphu_Mapa_v5.png"),
   ICON_RECENTER: require("../assets/center.png"),
 
   // ===== FOOD =====

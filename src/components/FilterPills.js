@@ -1,4 +1,5 @@
-// File: src/components/FilterPills.js
+// el PILL de los filtros
+
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";

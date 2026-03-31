@@ -8,6 +8,7 @@ import { supabase } from "../utils/supabase";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { Image } from "expo-image";
+import DirectoryButton from "./DirectoryScreen/DirectoryButton";
 
 import { UI_ICONS } from "./uiIcons";
 
@@ -56,10 +57,14 @@ const getMarkerForBuilding = (b) => {
   return { label, iconSource };
 };
 
-export default function MapScreen({ hideBottomMenu = false }) {
+export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
   const insets = useSafeAreaInsets();
 
-  // ===== STATE =====
+    const handleOpenDirectory = () => {
+    goToDirectory();
+  };
+
+
   const [buildings, setBuildings] = useState([]);
   const [foodPlaza, setFoodPlaza] = useState([]);
 
@@ -94,13 +99,16 @@ export default function MapScreen({ hideBottomMenu = false }) {
   const [showSearchResults, setShowSearchResults] = useState(false);
 
 
+
+
+
   const showToast = (msg) => {
     setToastMessage(msg);
     setToastVisible(true);
     setTimeout(() => setToastVisible(false), 1500);
   };
 
-  // ===== FAVORITOS (AsyncStorage) =====
+  //  FAVORITOS
   useEffect(() => {
     const loadFavorites = async () => {
       const raw = await AsyncStorage.getItem("favoritesList");
@@ -129,7 +137,7 @@ export default function MapScreen({ hideBottomMenu = false }) {
     [favoritesList]
   );
 
-  // ===== AQUI VIENDE LA DATA DE SUPABASE =====
+  // Data de SupaBase
   useEffect(() => {
     (async () => {
       const { data } = await supabase
@@ -244,7 +252,7 @@ export default function MapScreen({ hideBottomMenu = false }) {
     transform: [{ translateX: translateX.value }, { translateY: translateY.value }, { scale: scale.value }],
   }));
 
-  // ===== RoomCard icons injection =====
+  //  RoomCard icons
   const roomCardIcons = useMemo(
     () => ({
       ICON_CHAIR: UI_ICONS.ICON_CHAIR,
@@ -281,7 +289,7 @@ export default function MapScreen({ hideBottomMenu = false }) {
     [roomCardIcons]
   );
 
-  // ===== BottomMenu open helpers =====
+  //  BottomMenu helpers
   const openOnly = (which) => {
     setFiltersVisible(false);
     setFavoritesModalVisible(false);
@@ -330,17 +338,17 @@ export default function MapScreen({ hideBottomMenu = false }) {
 
 
 
-      {/* OVERLAY FILTROS */}
+
       {filtersVisible && <Pressable style={styles.filterOverlay} onPress={() => setFiltersVisible(false)} />}
       <Filters visible={filtersVisible} onClose={() => setFiltersVisible(false)} filters={filters} setFilters={setFilters} />
 
-      {/* MAPA */}
+
       <GestureDetector gesture={composedGesture}>
         <Animated.View>
           <Animated.View style={[{ width: IMG_W, height: IMG_H, position: "relative" }, animatedStyle]}>
             <Image source={UI_ICONS.MAP} style={{ flex: 1 }} contentFit="cover" />
 
-            {/* PINS: EDIFICIOS */}
+            // Pins de edificios
             {buildings.map((b) => {
               const { label, iconSource } = getMarkerForBuilding(b);
               return (
@@ -355,7 +363,7 @@ export default function MapScreen({ hideBottomMenu = false }) {
               );
             })}
 
-            {/* PINES DE FOODPLAZA */}
+            // Pin foodplaza
             {foodPlaza.map((f) => {
               const kind = (f.type || f.category || "").toString().toLowerCase();
               const iconSource = kind.includes("caf") ? UI_ICONS.ICON_CAFETERIA_SMALL : UI_ICONS.ICON_FOODPLAZA_SMALL;
@@ -372,7 +380,7 @@ export default function MapScreen({ hideBottomMenu = false }) {
               );
             })}
 
-            {/* ICONOS DE FILTROS (ANIMADOS) */}
+            // Iconos Filtros con el pop
             {Object.keys(filters).map(
               (key) =>
                 filters[key] &&
@@ -381,7 +389,7 @@ export default function MapScreen({ hideBottomMenu = false }) {
                 ))
             )}
 
-            {/* PRESSABLE AREAS: EDIFICIOS */}
+            // Areas pressables: edificios
             {buildings.map((b) => (
               <Pressable
                 key={`touch-b-${b.id}`}
@@ -399,7 +407,7 @@ export default function MapScreen({ hideBottomMenu = false }) {
               />
             ))}
 
-            {/* PRESSABLE AREAS: FOOD PLAZA */}
+            // Areas pressables: foodplaza
             {foodPlaza.map((f) => (
               <Pressable
                 key={`touch-f-${f.id}`}
@@ -420,7 +428,9 @@ export default function MapScreen({ hideBottomMenu = false }) {
         </Animated.View>
       </GestureDetector>
 
-      {/* BOTÓN DE RECENTRAR */}
+       <DirectoryButton onPress={handleOpenDirectory} />
+
+      // Boton de recentrar (Tengo que cambiarlo)
       <Pressable
         style={styles.recenterCircle}
         onPress={() => {
@@ -437,7 +447,7 @@ export default function MapScreen({ hideBottomMenu = false }) {
         <Image source={UI_ICONS.ICON_RECENTER} style={styles.recenterIcon} contentFit="contain" />
       </Pressable>
 
-      {/* MODALES */}
+      // Modales
       <BuildingModal
         building={selectedBuilding}
         onClose={() => setSelectedBuilding(null)}
@@ -499,7 +509,7 @@ export default function MapScreen({ hideBottomMenu = false }) {
         ICON_AIR={UI_ICONS.ICON_AIR}
       />
 
-      {/* TOAST */}
+      // Mensaje Toast
       <Modal transparent visible={toastVisible} animationType="none">
         <View
           pointerEvents="none"

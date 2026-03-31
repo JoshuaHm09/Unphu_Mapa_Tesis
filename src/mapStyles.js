@@ -19,7 +19,7 @@ backgroundPattern: {
   opacity: 0.22,
   zIndex: -1,
 },
-  // ===== TOP BAR (LOGO + BUSCADOR + FILTRO) =====
+  //TOP BAR LOGO + BUSCADOR + FILTRO
   topBarWrapper: {
     position: "absolute",
     height: 90,
@@ -67,7 +67,7 @@ searchContainer: {
 
 searchBackdrop: {
     position: "absolute",
-    top: 80, // justo debajo del header
+    top: 80,
     left: 9,
     right: 9,
     bottom:300,
@@ -105,7 +105,7 @@ searchBackdrop: {
 
   searchResultsContainer: {
     position: "absolute",
-    top: 150, // debajo del search bar (ajusta si quieres)
+    top: 150, // debajo del search bar
     left: 15,
     right: 15,
     backgroundColor: "#FFFFFF",
@@ -445,7 +445,7 @@ activeTabText: {
     color: BUILDING_GREEN,
   },
 
-  // BADGE OFF (nuevo)
+  // badge off
     badgeOff: {
     position: "relative",
     flexDirection: "row",
@@ -534,7 +534,7 @@ activeTabText: {
       paddingBottom: 40,
     },
 
-  // ===== FILTER ITEM =====
+  //  FILTROS
     filterItem: {
       flexDirection: "row",
       alignItems: "center",
@@ -570,7 +570,7 @@ activeTabText: {
       transform: [{ scale: 1.1 }],
     },
 
-  // ===== FILTER FLOATING BUTTON (HAMBURGER) =====
+  //  Botones filtrs
     floatingFilterButton: {
       position: "absolute",
       bottom: 32,
@@ -605,12 +605,12 @@ activeTabText: {
 
     globalTapClose: {
       position: "absolute",
-      top: 90,            // debajo del header
+      top: 90,
       left: 0,
       right: 0,
       bottom: 0,
       backgroundColor: "rgba(0,0,0,0.001)",
-      zIndex: 20,         // debajo del searchResults, encima del mapa
+      zIndex: 20,         // por arriba del mapa para que se vea
     },
 
     recenterCircle: {
@@ -648,15 +648,13 @@ activeTabText: {
    justifyContent: "space-around",
    alignItems: "center",
 
-   // ✔ sombra iOS
+   // iOS
    shadowColor: "#000",
    shadowOpacity: 0.15,
    shadowRadius: 25,
    shadowOffset: { width: 0, height: -2 },
 
-
-
-   // ✔ sombra Android
+   // Andorid
    elevation: 14,
    zIndex: 99999999,
    paddingBottom: 40,
