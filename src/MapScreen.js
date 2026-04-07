@@ -10,6 +10,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-na
 import { Image } from "expo-image";
 import DirectoryButton from "./DirectoryScreen/DirectoryButton";
 
+
 import { UI_ICONS } from "./uiIcons";
 
 // Data helpers
@@ -27,6 +28,15 @@ import BuildingModal from "./components/BuildingModal";
 import FoodPlazaModal from "./components/FoodPlazaModal";
 import SearchResults from "./components/SearchResults";
 import RoomCard from "./components/RoomCard";
+
+//Admin
+import AdminSidePanelButton from "./AdminComponents/AdminSidePanelButton";
+import AdminHomeScreen from "./AdminComponents/AdminHomeScreen";
+import AdminBuildingScreen from "./AdminComponents/AdminBuildingScreen";
+import AdminBuildingFormScreen from "./AdminComponents/AdminBuildingFormScreen";
+import AdminFoodScreen from "./AdminComponents/AdminFoodScreen";
+import AdminFoodFormScreen from "./AdminComponents/AdminFoodFormScreen";
+import LoginOverlay from "./LoginAuth/LoginOverlay";
 
 // Mapa
 const IMG_W = 4096;
@@ -57,7 +67,183 @@ const getMarkerForBuilding = (b) => {
   return { label, iconSource };
 };
 
+const toPublicImageUrl = (value) => {
+  if (!value || typeof value !== "string") return "";
+
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+    return trimmed;
+  }
+
+  const { data } = supabase.storage.from("images").getPublicUrl(trimmed);
+  return data?.publicUrl || "";
+};
+
+const normalizeImagesField = (value) => {
+  if (!value) return [];
+
+  if (Array.isArray(value)) {
+    return value
+      .map((img) => {
+        if (typeof img === "string") return toPublicImageUrl(img);
+
+        if (img && typeof img === "object") {
+          return toPublicImageUrl(img.url || img.src || "");
+        }
+
+        return "";
+      })
+      .filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) return [];
+
+    try {
+      const parsed = JSON.parse(trimmed);
+
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map((img) => {
+            if (typeof img === "string") return toPublicImageUrl(img);
+
+            if (img && typeof img === "object") {
+              return toPublicImageUrl(img.url || img.src || "");
+            }
+
+            return "";
+          })
+          .filter(Boolean);
+      }
+    } catch (error) {
+      return [toPublicImageUrl(trimmed)].filter(Boolean);
+    }
+
+    return [toPublicImageUrl(trimmed)].filter(Boolean);
+  }
+
+  return [];
+};
+
+const normalizeMenuField = (value) => {
+  if (!value) return [];
+
+  if (Array.isArray(value)) {
+    return value.map((item) => {
+      if (typeof item === "string") {
+        return {
+          name: item,
+          price: "",
+        };
+      }
+
+      if (item && typeof item === "object") {
+        return {
+          ...item,
+          name: item.name || item.item || item.title || "Sin nombre",
+          price: item.price != null ? String(item.price) : "",
+        };
+      }
+
+      return {
+        name: "Sin nombre",
+        price: "",
+      };
+    });
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) return [];
+
+    try {
+      const parsed = JSON.parse(trimmed);
+
+      if (Array.isArray(parsed)) {
+        return parsed.map((item) => {
+          if (typeof item === "string") {
+            return {
+              name: item,
+              price: "",
+            };
+          }
+
+          if (item && typeof item === "object") {
+            return {
+              ...item,
+              name: item.name || item.item || item.title || "Sin nombre",
+              price: item.price != null ? String(item.price) : "",
+            };
+          }
+
+          return {
+            name: "Sin nombre",
+            price: "",
+          };
+        });
+      }
+    } catch (error) {
+      return trimmed
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => ({
+          name: line,
+          price: "",
+        }));
+    }
+  }
+
+  return [];
+};
+
+const normalizeVendorsField = (value) => {
+  if (!value) return {};
+
+  let parsed = value;
+
+  if (typeof value === "string") {
+    try {
+      parsed = JSON.parse(value);
+    } catch (error) {
+      return {};
+    }
+  }
+
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    return {};
+  }
+
+  const normalized = {};
+
+  Object.entries(parsed).forEach(([vendorName, vendorData]) => {
+    normalized[vendorName] = {
+      ...vendorData,
+      schedule: vendorData?.schedule || "",
+      menu: normalizeMenuField(vendorData?.menu),
+      images: normalizeImagesField(vendorData?.images),
+    };
+  });
+
+  return normalized;
+};
+
+const normalizeFoodPlace = (item) => {
+  return {
+    ...item,
+    images: normalizeImagesField(item?.images),
+    menu: normalizeMenuField(item?.menu),
+    vendors: normalizeVendorsField(item?.vendors),
+  };
+};
+
 export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
+
+  const ADMIN_EMAIL = "admintest@gmail.com";
+
   const insets = useSafeAreaInsets();
 
     const handleOpenDirectory = () => {
@@ -67,7 +253,9 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
 
   const [buildings, setBuildings] = useState([]);
   const [foodPlaza, setFoodPlaza] = useState([]);
-
+  const [activeView, setActiveView] = useState("map");
+  const [selectedAdminBuilding, setSelectedAdminBuilding] = useState(null);
+  const [selectedAdminFood, setSelectedAdminFood] = useState(null);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [selectedFoodPlaza, setSelectedFoodPlaza] = useState(null);
 
@@ -98,6 +286,11 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
   const [searchFocused, setSearchFocused] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
 
+
+  // Login
+  const [showLoginOverlay, setShowLoginOverlay] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [hasEnteredApp, setHasEnteredApp] = useState(false);
 
 
 
@@ -138,29 +331,222 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
   );
 
   // Data de SupaBase
-  useEffect(() => {
-    (async () => {
-      const { data } = await supabase
-        .from("buildings")
-        .select("id, name, subtitle, x, y, radius, images, floors");
-      if (data) {
-        setBuildings(
-          data.map((b) => ({
-            ...b,
-            images: b.images || [],
-            floors: b.floors || {},
-          }))
-        );
-      }
-    })();
-  }, []);
+ const fetchBuildings = async () => {
+   const { data, error } = await supabase
+     .from("buildings")
+     .select("id, name, subtitle, x, y, radius, images, floors, events");
 
-  useEffect(() => {
-    (async () => {
-      const { data } = await supabase.from("food_places").select("*");
-      if (data) setFoodPlaza(data);
-    })();
-  }, []);
+   console.log("FETCH buildings data:", data);
+   console.log("FETCH buildings error:", error);
+
+   if (error) {
+     console.log("Error loading buildings:", error.message);
+     return;
+   }
+
+   if (data) {
+     setBuildings(
+       data.map((b) => ({
+         ...b,
+         images: b.images || [],
+         floors: b.floors || {},
+         events: b.events || [],
+       }))
+     );
+   }
+ };
+
+ const normalizeImagesField = (value) => {
+   if (!value) return [];
+
+   if (Array.isArray(value)) {
+     return value
+       .map((img) => {
+         if (typeof img === "string") return img.trim();
+         if (img && typeof img === "object") {
+           return (img.url || img.src || "").trim();
+         }
+         return "";
+       })
+       .filter(Boolean);
+   }
+
+   if (typeof value === "string") {
+     const trimmed = value.trim();
+     if (!trimmed) return [];
+
+     try {
+       const parsed = JSON.parse(trimmed);
+
+       if (Array.isArray(parsed)) {
+         return parsed
+           .map((img) => {
+             if (typeof img === "string") return img.trim();
+             if (img && typeof img === "object") {
+               return (img.url || img.src || "").trim();
+             }
+             return "";
+           })
+           .filter(Boolean);
+       }
+     } catch (error) {
+       return [trimmed];
+     }
+
+     return [trimmed];
+   }
+
+   return [];
+ };
+
+ const normalizeMenuField = (value) => {
+   if (!value) return [];
+
+   if (Array.isArray(value)) {
+     return value.map((item) => {
+       if (typeof item === "string") {
+         return { name: item, price: "" };
+       }
+
+       if (item && typeof item === "object") {
+         return {
+           ...item,
+           name: item.name || item.item || item.title || "Sin nombre",
+           price: item.price != null ? String(item.price) : "",
+         };
+       }
+
+       return { name: "Sin nombre", price: "" };
+     });
+   }
+
+   if (typeof value === "string") {
+     const trimmed = value.trim();
+     if (!trimmed) return [];
+
+     try {
+       const parsed = JSON.parse(trimmed);
+
+       if (Array.isArray(parsed)) {
+         return parsed.map((item) => {
+           if (typeof item === "string") {
+             return { name: item, price: "" };
+           }
+
+           if (item && typeof item === "object") {
+             return {
+               ...item,
+               name: item.name || item.item || item.title || "Sin nombre",
+               price: item.price != null ? String(item.price) : "",
+             };
+           }
+
+           return { name: "Sin nombre", price: "" };
+         });
+       }
+     } catch (error) {
+       return trimmed
+         .split("\n")
+         .map((line) => line.trim())
+         .filter(Boolean)
+         .map((line) => ({
+           name: line,
+           price: "",
+         }));
+     }
+   }
+
+   return [];
+ };
+
+ const normalizeVendorsField = (value) => {
+   if (!value) return {};
+
+   let parsed = value;
+
+   if (typeof value === "string") {
+     try {
+       parsed = JSON.parse(value);
+     } catch (error) {
+       return {};
+     }
+   }
+
+   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+     return {};
+   }
+
+   const normalized = {};
+
+   Object.entries(parsed).forEach(([vendorName, vendorData]) => {
+     normalized[vendorName] = {
+       ...vendorData,
+       schedule: vendorData?.schedule || "",
+       menu: normalizeMenuField(vendorData?.menu),
+       images: normalizeImagesField(vendorData?.images),
+     };
+   });
+
+   return normalized;
+ };
+
+ const fetchFoodPlaces = async () => {
+   const { data, error } = await supabase.from("food_places").select("*");
+
+   console.log("FETCH food_places data:", data);
+   console.log("FETCH food_places error:", error);
+
+   if (error) {
+     console.log("Error loading food places:", error.message);
+     return;
+   }
+
+   if (data) {
+     const normalizedFoodPlaces = data.map((item) => ({
+       ...item,
+       images: normalizeImagesField(item?.images),
+       menu: normalizeMenuField(item?.menu),
+       vendors: normalizeVendorsField(item?.vendors),
+     }));
+
+     console.log(
+       "FETCH normalized food places:",
+       JSON.stringify(normalizedFoodPlaces, null, 2)
+     );
+
+     setFoodPlaza(normalizedFoodPlaces);
+   }
+ };
+
+ useEffect(() => {
+   fetchBuildings();
+   fetchFoodPlaces();
+ }, []);
+
+
+ /*  Esto para agrear que se guarde en storage para no logearse otra vez
+
+ useEffect(() => {
+   const loadAuthMode = async () => {
+     const mode = await AsyncStorage.getItem("authMode");
+
+     if (mode === "admin") {
+       setIsAdmin(true);
+       setHasEnteredApp(true);
+       setShowLoginOverlay(false);
+     } else if (mode === "guest") {
+       setIsAdmin(false);
+       setHasEnteredApp(true);
+       setShowLoginOverlay(false);
+     } else {
+       setIsAdmin(false);
+       setHasEnteredApp(false);
+       setShowLoginOverlay(true);
+     }
+   };
+
+   loadAuthMode();
+ }, []); */
 
   // ===== ANDROID BACK =====
   useEffect(() => {
@@ -207,6 +593,57 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
 
     translateX.value = offsetX;
     translateY.value = offsetY;
+  }, []);
+
+  useEffect(() => {
+    const loadSession = async () => {
+      const { data, error } = await supabase.auth.getSession();
+
+      if (error) {
+        console.log("SESSION ERROR:", error.message);
+        setIsAdmin(false);
+        setHasEnteredApp(false);
+        setShowLoginOverlay(true);
+        return;
+      }
+
+      const session = data?.session;
+      const email = session?.user?.email || "";
+
+      if (session) {
+        setIsAdmin(email === ADMIN_EMAIL);
+        setHasEnteredApp(true);
+        setShowLoginOverlay(false);
+      } else {
+        setIsAdmin(false);
+        setHasEnteredApp(false);
+        setShowLoginOverlay(true);
+      }
+    };
+
+    loadSession();
+  }, []);
+
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      const email = session?.user?.email || "";
+
+      if (session) {
+        setIsAdmin(email === ADMIN_EMAIL);
+        setHasEnteredApp(true);
+        setShowLoginOverlay(false);
+      } else {
+        setIsAdmin(false);
+        setHasEnteredApp(false);
+        setShowLoginOverlay(true);
+      }
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
   }, []);
 
   const clampToBounds = () => {
@@ -306,35 +743,130 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
   const openFavorites = () => openOnly("favorites");
   const openLegend = () => openOnly("legend");
 
+ if (activeView === "admin") {
+   return (
+     <AdminHomeScreen
+       onBack={() => setActiveView("map")}
+       onPressBuildings={() => setActiveView("admin-buildings")}
+       onPressFood={() => setActiveView("admin-food")}
+     />
+   );
+ }
+
+ if (activeView === "admin-buildings") {
+   return (
+     <AdminBuildingScreen
+       buildings={buildings}
+       onBack={() => setActiveView("admin")}
+       onSelectBuilding={(building) => {
+         setSelectedAdminBuilding(building);
+         setActiveView("admin-building-form");
+       }}
+     />
+   );
+ }
+
+ if (activeView === "admin-building-form" && selectedAdminBuilding) {
+   return (
+     <AdminBuildingFormScreen
+       building={selectedAdminBuilding}
+       onBack={() => setActiveView("admin-buildings")}
+       onSaved={async (updatedBuilding) => {
+         await fetchBuildings();
+         setSelectedAdminBuilding(updatedBuilding || null);
+         setActiveView("admin-buildings");
+       }}
+     />
+   );
+ }
+if (activeView === "admin-food") {
+  return (
+    <AdminFoodScreen
+      foodPlaces={foodPlaza}
+      onBack={() => setActiveView("admin")}
+      onSelectFood={(food) => {
+        setSelectedAdminFood(food);
+        setActiveView("admin-food-form");
+      }}
+    />
+  );
+}
+if (activeView === "admin-food-form" && selectedAdminFood) {
+  return (
+    <AdminFoodFormScreen
+      foodPlace={selectedAdminFood}
+      onBack={() => setActiveView("admin-food")}
+      onSaved={async (updatedFood) => {
+        await fetchFoodPlaces();
+        setSelectedAdminFood(updatedFood || null);
+        setActiveView("admin-food");
+      }}
+    />
+  );
+}
+
+const handleLogin = async ({ email, password }) => {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    console.log("LOGIN ERROR:", error);
+    alert(error.message || "No se pudo iniciar sesión");
+    return;
+  }
+
+  const loggedEmail = data?.user?.email || "";
+
+  setHasEnteredApp(true);
+  setShowLoginOverlay(false);
+  setIsAdmin(loggedEmail === ADMIN_EMAIL);
+};
+
+const handleContinueGuest = () => {
+  setIsAdmin(false);
+  setHasEnteredApp(true);
+  setShowLoginOverlay(false);
+  AsyncStorage.setItem("authMode", "guest");
+};
+
+console.log("hasEnteredApp:", hasEnteredApp);
+console.log("showLoginOverlay:", showLoginOverlay);
+console.log("isAdmin:", isAdmin);
+
   return (
     <View style={styles.screen}>
       <Image source={UI_ICONS.BG_PATTERN} style={styles.backgroundPattern} contentFit="cover" />
 
       {/* SEARCH BAR + RESULTS */}
-     <SearchResults
-       styles={styles}
-       buildings={buildings}
+      <SearchResults
+        styles={styles}
+        buildings={buildings}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        searchFocused={searchFocused}
+        setSearchFocused={setSearchFocused}
+        showSearchResults={showSearchResults}
+        setShowSearchResults={setShowSearchResults}
+        onPickBuilding={(b) => {
+          const targetScale = minScale * 3;
+          scale.value = withTiming(targetScale);
 
-       searchQuery={searchQuery}
-       setSearchQuery={setSearchQuery}
-       searchFocused={searchFocused}
-       setSearchFocused={setSearchFocused}
-       showSearchResults={showSearchResults}
-       setShowSearchResults={setShowSearchResults}
+          const offsetX = (b.x - IMG_W / 2) * targetScale;
+          const offsetY = (b.y - IMG_H / 2) * targetScale;
 
-       onPickBuilding={(b) => {
-         const targetScale = minScale * 3;
-         scale.value = withTiming(targetScale);
+          translateX.value = withTiming(-offsetX);
+          translateY.value = withTiming(-offsetY);
 
-         const offsetX = (b.x - IMG_W / 2) * targetScale;
-         const offsetY = (b.y - IMG_H / 2) * targetScale;
+          setSelectedBuilding(b);
+        }}
+      />
 
-         translateX.value = withTiming(-offsetX);
-         translateY.value = withTiming(-offsetY);
+      {isAdmin && (
+        <AdminSidePanelButton onPress={() => setActiveView("admin")} />
+      )}
 
-         setSelectedBuilding(b);
-       }}
-     />
 
 
 
@@ -533,6 +1065,12 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
           </View>
         </View>
       </Modal>
+
+       <LoginOverlay
+                  visible={showLoginOverlay}
+                  onLogin={handleLogin}
+                  onContinueGuest={handleContinueGuest}
+                />
     </View>
   );
 }
