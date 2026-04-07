@@ -57,7 +57,7 @@ const getMarkerForBuilding = (b) => {
   return { label, iconSource };
 };
 
-export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
+export default function MapScreen({ hideBottomMenu = false, goToDirectory, canAccessAdmin = false }) {
   const insets = useSafeAreaInsets();
 
     const handleOpenDirectory = () => {
@@ -428,7 +428,7 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
         </Animated.View>
       </GestureDetector>
 
-       <DirectoryButton onPress={handleOpenDirectory} />
+       {canAccessAdmin && <DirectoryButton onPress={handleOpenDirectory} />}
 
       // Boton de recentrar (Tengo que cambiarlo)
       <Pressable
