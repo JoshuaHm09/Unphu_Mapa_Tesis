@@ -39,14 +39,20 @@ export default function useMapGestures({
     translateY.value = offsetY;
   }, [imgWidth, imgHeight, screenWidth, screenHeight, minScale, scale, translateX, translateY]);
 
-  const clampToBounds = () => {
-    "worklet";
-    const maxTx = Math.max(0, (imgWidth * scale.value - screenWidth) / 2);
-    const maxTy = Math.max(0, (imgHeight * scale.value - screenHeight) / 2);
+ const clampToBounds = () => {
+   "worklet";
 
-    translateX.value = withTiming(clamp(translateX.value, -maxTx, maxTx));
-    translateY.value = withTiming(clamp(translateY.value, -maxTy, maxTy));
-  };
+   const extraBottom = 100;
+
+   const maxTx = Math.max(0, (imgWidth * scale.value - screenWidth) / 2);
+   const maxTy = Math.max(
+     0,
+     (imgHeight * scale.value - screenHeight) / 2 + extraBottom
+   );
+
+   translateX.value = withTiming(clamp(translateX.value, -maxTx, maxTx));
+   translateY.value = withTiming(clamp(translateY.value, -maxTy, maxTy));
+ };
 
   const panGesture = Gesture.Pan()
     .onStart(() => {

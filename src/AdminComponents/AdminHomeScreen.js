@@ -11,7 +11,7 @@ export default function AdminHomeScreen({ onBack, onPressBuildings, onPressFood 
           <Text style={styles.backText}>‹</Text>
         </Pressable>
 
-        <Text style={styles.title}>Admin Panel</Text>
+        <Text style={styles.title}>Panel de Administrador</Text>
       </View>
 
       {/* CONTENT */}

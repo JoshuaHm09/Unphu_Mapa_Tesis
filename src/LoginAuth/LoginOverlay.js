@@ -36,9 +36,10 @@ export default function LoginOverlay({
         style={styles.centerWrap}
       >
         <Pressable style={styles.card} onPress={() => {}}>
-          <Text style={styles.title}>Admin Log In</Text>
+          <Text style={styles.title}>Iniciar Sesión</Text>
           <Text style={styles.subtitle}>
-            Inicia sesión para acceder al panel administrativo
+            Para tener acceso como administrador, por favor ingresa tus
+            credenciales.
           </Text>
 
           <View style={styles.inputGroup}>
@@ -84,7 +85,7 @@ export default function LoginOverlay({
           </View>
 
           <Pressable style={styles.loginButton} onPress={handleLoginPress}>
-            <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+            <Text style={styles.loginButtonText}>Ingresar</Text>
           </Pressable>
 
           <Pressable style={styles.guestButton} onPress={onContinueGuest}>

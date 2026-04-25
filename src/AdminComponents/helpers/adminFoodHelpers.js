@@ -42,7 +42,7 @@ export const normalizeImagesArray = (images) => {
           .filter(Boolean);
       }
     } catch (error) {
-      // si no es JSON, seguimos normal
+
     }
 
     return [trimmed];

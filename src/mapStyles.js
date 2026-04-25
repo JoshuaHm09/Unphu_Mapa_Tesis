@@ -331,10 +331,10 @@ activeTabText: {
   },
   modalHeaderClose: {
     position: "absolute",
-    right: 0,
+    right: -5,
     top: 0,
-    width: 37,
-    height: 37,
+    width: 40,
+    height: 40,
     borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
@@ -659,6 +659,8 @@ activeTabText: {
    zIndex: 99999999,
    paddingBottom: 40,
  },
+
+
 
  horariosButton: {
    backgroundColor: "white",

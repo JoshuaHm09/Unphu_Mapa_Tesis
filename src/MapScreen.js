@@ -6,7 +6,6 @@ import { GestureDetector } from "react-native-gesture-handler";
 import Animated from "react-native-reanimated";
 import { Image } from "expo-image";
 
-import DirectoryButton from "./DirectoryScreen/DirectoryButton";
 import useAuthSession from "./hooks/useAuthSession";
 import useCampusData from "./hooks/useCampusData";
 import useFavorites from "./hooks/useFavorites";
@@ -14,12 +13,9 @@ import useMapGestures from "./hooks/useMapGestures";
 
 import { getMarkerForBuilding } from "../utils/mapDataHelpers";
 import { UI_ICONS } from "./uiIcons";
-
-// Data helpers
 import { filterPoints } from "../src/components/filterPoints";
 import AnimatedFilterPin from "./components/AnimatedFilterPin";
 
-// UI components
 import MarkerPin from "./components/MarkerPin";
 import ImageCarousel from "./components/ImageCarousel";
 import BottomMenu from "./components/BottomMenu";
@@ -31,7 +27,6 @@ import FoodPlazaModal from "./components/FoodPlazaModal";
 import SearchResults from "./components/SearchResults";
 import RoomCard from "./components/RoomCard";
 
-// Admin
 import AdminSidePanelButton from "./AdminComponents/AdminSidePanelButton";
 import AdminHomeScreen from "./AdminComponents/AdminHomeScreen";
 import AdminBuildingScreen from "./AdminComponents/AdminBuildingScreen";
@@ -40,14 +35,12 @@ import AdminFoodScreen from "./AdminComponents/AdminFoodScreen";
 import AdminFoodFormScreen from "./AdminComponents/AdminFoodFormScreen";
 import LoginOverlay from "./LoginAuth/LoginOverlay";
 
-// Mapa
 const IMG_W = 4096;
 const IMG_H = 5120;
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
   const ADMIN_EMAIL = "admintest@gmail.com";
-
   const insets = useSafeAreaInsets();
 
   const handleOpenDirectory = () => {
@@ -72,7 +65,6 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
   } = useFavorites();
 
   const {
-    minScale,
     scale,
     composedGesture,
     animatedStyle,
@@ -102,32 +94,76 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
 
   const [favoritesPressed, setFavoritesPressed] = useState(false);
   const [legendPressed, setLegendPressed] = useState(false);
-  const [filtersPressed, setFiltersPressed] = useState(false);
-  const [filtersVisible, setFiltersVisible] = useState(false);
+
   const [favoritesModalVisible, setFavoritesModalVisible] = useState(false);
   const [legendModalVisible, setLegendModalVisible] = useState(false);
 
-  // ===== SEARCH STATE =====
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
 
-  // ===== ANDROID BACK =====
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [showBuildings, setShowBuildings] = useState(true);
+  const [showFoodPlaza, setShowFoodPlaza] = useState(true);
+
+  const handleToggleFilters = useCallback(() => {
+    setFiltersOpen((prev) => !prev);
+  }, []);
+
+  const openFavorites = () => {
+    setSelectedBuilding(null);
+    setSelectedFoodPlaza(null);
+    setFavoritesModalVisible(true);
+  };
+
+  const openLegend = () => {
+    setSelectedBuilding(null);
+    setSelectedFoodPlaza(null);
+    setLegendModalVisible(true);
+  };
+
   useEffect(() => {
     const sub = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (activeView === "admin-food-form") {
+        setActiveView("admin-food");
+        return true;
+      }
+
+      if (activeView === "admin-building-form") {
+        setActiveView("admin-buildings");
+        return true;
+      }
+
+      if (activeView === "admin-food") {
+        setActiveView("admin");
+        return true;
+      }
+
+      if (activeView === "admin-buildings") {
+        setActiveView("admin");
+        return true;
+      }
+
+      if (activeView === "admin") {
+        setActiveView("map");
+        return true;
+      }
+
       const anyOpen =
         !!selectedBuilding ||
         !!selectedFoodPlaza ||
-        !!filtersVisible ||
+        !!filtersOpen ||
         !!favoritesModalVisible ||
         !!legendModalVisible;
 
       if (anyOpen) {
         setSelectedBuilding(null);
         setSelectedFoodPlaza(null);
-        setFiltersVisible(false);
+        setFiltersOpen(false);
         setFavoritesModalVisible(false);
         setLegendModalVisible(false);
+        setFavoritesPressed(false);
+        setLegendPressed(false);
         return true;
       }
 
@@ -136,14 +172,14 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
 
     return () => sub.remove();
   }, [
+    activeView,
     selectedBuilding,
     selectedFoodPlaza,
-    filtersVisible,
+    filtersOpen,
     favoritesModalVisible,
     legendModalVisible,
   ]);
 
-  // RoomCard icons
   const roomCardIcons = useMemo(
     () => ({
       ICON_CHAIR: UI_ICONS.ICON_CHAIR,
@@ -163,6 +199,9 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
       ICON_IT: UI_ICONS.ICON_IT,
       ICON_MATH: UI_ICONS.ICON_MATH,
       ICON_TREE: UI_ICONS.ICON_TREE,
+      ICON_TENNIS_1: UI_ICONS.ICON_TENNIS_1,
+      ICON_FUTBOL: UI_ICONS.ICON_FUTBOL,
+      ICON_RECEPCION: UI_ICONS.ICON_RECEPCION,
       ICON_BASEBALL: UI_ICONS.ICON_BASEBALL,
       ICON_TOURISM: UI_ICONS.ICON_TOURISM,
       ICON_DERECHO: UI_ICONS.ICON_DERECHO,
@@ -171,6 +210,28 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
       ICON_AIR: UI_ICONS.ICON_AIR,
       ICON_PROJECTOR: UI_ICONS.ICON_PROJECTOR,
       ICON_STUDENTS: UI_ICONS.ICON_STUDENTS,
+      ICON_BALONCESTO: UI_ICONS.ICON_BALONCESTO,
+      ICON_GYM_3: UI_ICONS.ICON_GYM_3,
+      ICON_COURRIER: UI_ICONS.ICON_COURRIER,
+      ICON_TALLER: UI_ICONS.ICON_TALLER,
+      ICON_FACUART: UI_ICONS.ICON_FACUART,
+      ICON_ESCUELADISE: UI_ICONS.ICON_ESCUELADISE,
+      ICON_EGRESADOSOFI: UI_ICONS.ICON_EGRESADOSOFI,
+      ICON_FACULTADARTS: UI_ICONS.ICON_FACULTADARTS,
+      ICON_DEPOSITO: UI_ICONS.ICON_DEPOSITO,
+      ICON_SALONPROYECCION: UI_ICONS.ICON_SALONPROYECCION,
+      ICON_MUSIC: UI_ICONS.ICON_MUSIC,
+      ICON_AGROPECUARIA: UI_ICONS.ICON_AGROPECUARIA,
+      ICON_TUTORIA: UI_ICONS.ICON_TUTORIA,
+      ICON_GEOMATICA: UI_ICONS.ICON_GEOMATICA,
+      ICON_COMISION: UI_ICONS.ICON_COMISION,
+      ICON_INFO: UI_ICONS.ICON_INFO,
+      ICON_CONTABILIDAD: UI_ICONS.ICON_CONTABILIDAD,
+      ICON_COSMOS: UI_ICONS.ICON_COSMOS,
+      ICON_COMEDOR: UI_ICONS.ICON_COMEDOR,
+      ICON_ODONTOLOGIA: UI_ICONS.ICON_ODONTOLOGIA,
+      ICON_CELULARES: UI_ICONS.ICON_CELULARES,
+
     }),
     []
   );
@@ -179,23 +240,6 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
     (props) => <RoomCard {...props} styles={styles} icons={roomCardIcons} />,
     [roomCardIcons]
   );
-
-  // BottomMenu helpers
-  const openOnly = (which) => {
-    setFiltersVisible(false);
-    setFavoritesModalVisible(false);
-    setLegendModalVisible(false);
-    setSelectedBuilding(null);
-    setSelectedFoodPlaza(null);
-
-    if (which === "filters") setFiltersVisible(true);
-    else if (which === "favorites") setFavoritesModalVisible(true);
-    else if (which === "legend") setLegendModalVisible(true);
-  };
-
-  const openFilters = () => openOnly("filters");
-  const openFavorites = () => openOnly("favorites");
-  const openLegend = () => openOnly("legend");
 
   if (activeView === "admin") {
     return (
@@ -269,7 +313,6 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
         contentFit="cover"
       />
 
-      {/* SEARCH BAR + RESULTS */}
       <SearchResults
         styles={styles}
         buildings={buildings}
@@ -289,18 +332,15 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
         <AdminSidePanelButton onPress={() => setActiveView("admin")} />
       )}
 
-      {filtersVisible && (
-        <Pressable
-          style={styles.filterOverlay}
-          onPress={() => setFiltersVisible(false)}
-        />
-      )}
-
       <Filters
-        visible={filtersVisible}
-        onClose={() => setFiltersVisible(false)}
+        visible={filtersOpen}
+        onClose={handleToggleFilters}
         filters={filters}
         setFilters={setFilters}
+        showBuildings={showBuildings}
+        setShowBuildings={setShowBuildings}
+        showFoodPlaza={showFoodPlaza}
+        setShowFoodPlaza={setShowFoodPlaza}
       />
 
       <GestureDetector gesture={composedGesture}>
@@ -311,44 +351,49 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
               animatedStyle,
             ]}
           >
-            <Image source={UI_ICONS.MAP} style={{ flex: 1 }} contentFit="cover" />
+            <Image
+              source={UI_ICONS.MAP}
+              style={{ flex: 1 }}
+              contentFit="cover"
+            />
 
-            {/* Pins de edificios */}
-            {buildings.map((b) => {
-              const { label, iconSource } = getMarkerForBuilding(b);
+            {showBuildings
+              ? buildings.map((b) => {
+                  const { label, iconSource } = getMarkerForBuilding(b);
 
-              return (
-                <MarkerPin
-                  key={`pin-${b.id}`}
-                  x={b.x}
-                  y={b.y}
-                  label={label}
-                  iconSource={iconSource}
-                  onPress={() => setSelectedBuilding(b)}
-                />
-              );
-            })}
+                  return (
+                    <MarkerPin
+                      key={`pin-${b.id}`}
+                      x={b.x}
+                      y={b.y}
+                      label={label}
+                      iconSource={iconSource}
+                      onPress={() => setSelectedBuilding(b)}
+                    />
+                  );
+                })
+              : null}
 
-            {/* Pin foodplaza */}
-            {foodPlaza.map((f) => {
-              const kind = (f.type || f.category || "").toString().toLowerCase();
-              const iconSource = kind.includes("caf")
-                ? UI_ICONS.ICON_CAFETERIA_SMALL
-                : UI_ICONS.ICON_FOODPLAZA_SMALL;
+            {showFoodPlaza
+              ? foodPlaza.map((f) => {
+                  const kind = (f.type || f.category || "").toString().toLowerCase();
+                  const iconSource = kind.includes("caf")
+                    ? UI_ICONS.ICON_CAFETERIA_SMALL
+                    : UI_ICONS.ICON_FOODPLAZA_SMALL;
 
-              return (
-                <MarkerPin
-                  key={`food-pin-${f.id}`}
-                  x={f.x}
-                  y={f.y}
-                  label={null}
-                  iconSource={iconSource}
-                  onPress={() => setSelectedFoodPlaza(f)}
-                />
-              );
-            })}
+                  return (
+                    <MarkerPin
+                      key={`food-pin-${f.id}`}
+                      x={f.x}
+                      y={f.y}
+                      label={null}
+                      iconSource={iconSource}
+                      onPress={() => setSelectedFoodPlaza(f)}
+                    />
+                  );
+                })
+              : null}
 
-            {/* Iconos filtros con el pop */}
             {Object.keys(filters).map(
               (key) =>
                 filters[key] &&
@@ -364,48 +409,47 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
                 ))
             )}
 
-            {/* Áreas pressables: edificios */}
-            {buildings.map((b) => (
-              <Pressable
-                key={`touch-b-${b.id}`}
-                style={[
-                  styles.pressableArea,
-                  {
-                    left: b.x - b.radius,
-                    top: b.y - b.radius,
-                    width: b.radius * 2,
-                    height: b.radius * 2,
-                    borderRadius: b.radius,
-                  },
-                ]}
-                onPress={() => setSelectedBuilding(b)}
-              />
-            ))}
+            {showBuildings
+              ? buildings.map((b) => (
+                  <Pressable
+                    key={`touch-b-${b.id}`}
+                    style={[
+                      styles.pressableArea,
+                      {
+                        left: b.x - b.radius,
+                        top: b.y - b.radius,
+                        width: b.radius * 2,
+                        height: b.radius * 2,
+                        borderRadius: b.radius,
+                      },
+                    ]}
+                    onPress={() => setSelectedBuilding(b)}
+                  />
+                ))
+              : null}
 
-            {/* Áreas pressables: foodplaza */}
-            {foodPlaza.map((f) => (
-              <Pressable
-                key={`touch-f-${f.id}`}
-                style={[
-                  styles.pressableArea,
-                  {
-                    left: f.x - f.radius,
-                    top: f.y - f.radius,
-                    width: f.radius * 2,
-                    height: f.radius * 2,
-                    borderRadius: f.radius,
-                  },
-                ]}
-                onPress={() => setSelectedFoodPlaza(f)}
-              />
-            ))}
+            {showFoodPlaza
+              ? foodPlaza.map((f) => (
+                  <Pressable
+                    key={`touch-f-${f.id}`}
+                    style={[
+                      styles.pressableArea,
+                      {
+                        left: f.x - f.radius,
+                        top: f.y - f.radius,
+                        width: f.radius * 2,
+                        height: f.radius * 2,
+                        borderRadius: f.radius,
+                      },
+                    ]}
+                    onPress={() => setSelectedFoodPlaza(f)}
+                  />
+                ))
+              : null}
           </Animated.View>
         </Animated.View>
       </GestureDetector>
 
-      <DirectoryButton onPress={handleOpenDirectory} />
-
-      {/* Botón de recentrar */}
       <Pressable style={styles.recenterCircle} onPress={recenterMap}>
         <Image
           source={UI_ICONS.ICON_RECENTER}
@@ -414,7 +458,6 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
         />
       </Pressable>
 
-      {/* Modales */}
       <BuildingModal
         building={selectedBuilding}
         onClose={() => setSelectedBuilding(null)}
@@ -432,15 +475,13 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
 
       {!hideBottomMenu && (
         <BottomMenu
-          filtersPressed={filtersPressed}
           favoritesPressed={favoritesPressed}
           legendPressed={legendPressed}
-          setFiltersPressed={setFiltersPressed}
           setFavoritesPressed={setFavoritesPressed}
           setLegendPressed={setLegendPressed}
-          setFiltersVisible={openFilters}
           setFavoritesModalVisible={openFavorites}
           setLegendModalVisible={openLegend}
+          onPressDirectory={handleOpenDirectory}
         />
       )}
 
@@ -475,7 +516,6 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
         ICON_AIR={UI_ICONS.ICON_AIR}
       />
 
-      {/* Mensaje Toast */}
       <Modal transparent visible={toastVisible} animationType="none">
         <View
           pointerEvents="none"

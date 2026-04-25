@@ -7,6 +7,10 @@ import {
   Text,
   TextInput,
   View,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { supabase } from "../../utils/supabase";
 import styles from "./helpers/styles/adminBuildingFormStyles";
@@ -16,8 +20,6 @@ import {
   TimeField,
 } from "./BuildingFormFields";
 import BuildingFloorEditor from "./BuildingFloorEditor";
-
-
 
 function EventEditor({
   event,
@@ -342,126 +344,140 @@ export default function AdminBuildingFormScreen({ building, onBack, onSaved }) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Pressable onPress={onBack} style={styles.backBtn}>
-          <Text style={styles.backText}>‹</Text>
-        </Pressable>
-
-        <Text style={styles.headerTitle}>Editar Edificio</Text>
-      </View>
-
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.pageTitle}>{name || "Edificio"}</Text>
-        <Text style={styles.pageSubtitle}>{subtitle || "Sin subtítulo"}</Text>
-
-        <View style={styles.formCard}>
-          <Text style={styles.label}>Nombre</Text>
-          <TextInput
-            style={styles.input}
-            value={name}
-            onChangeText={setName}
-            placeholder="Nombre"
-            placeholderTextColor="#aaa"
-          />
-
-          <Text style={styles.label}>Subtitulo</Text>
-          <TextInput
-            style={styles.input}
-            value={subtitle}
-            onChangeText={setSubtitle}
-            placeholder="Subtítulo"
-            placeholderTextColor="#aaa"
-          />
-
-          <Text style={styles.label}>Coordenadas</Text>
-          <View style={styles.coordsRow}>
-            <TextInput
-              style={[styles.input, styles.coordInput]}
-              value={x}
-              onChangeText={setX}
-              placeholder="X"
-              keyboardType="numeric"
-              placeholderTextColor="#aaa"
-            />
-            <TextInput
-              style={[styles.input, styles.coordInput]}
-              value={y}
-              onChangeText={setY}
-              placeholder="Y"
-              keyboardType="numeric"
-              placeholderTextColor="#aaa"
-            />
-          </View>
-
-          <Text style={styles.label}>Radio</Text>
-          <TextInput
-            style={styles.input}
-            value={radius}
-            onChangeText={setRadius}
-            placeholder="Radio"
-            keyboardType="numeric"
-            placeholderTextColor="#aaa"
-          />
-
-          <Text style={styles.sectionTitle}>Pisos</Text>
-
-          {floorEntries.length === 0 ? (
-            <View style={styles.emptyFloorBox}>
-              <Text style={styles.emptyFloorText}>Este edificio no tiene pisos cargados.</Text>
-            </View>
-          ) : (
-            floorEntries.map(([floorName, rooms]) => (
-              <BuildingFloorEditor
-                key={floorName}
-                floorName={floorName}
-                rooms={rooms}
-                isOpen={!!openFloors[floorName]}
-                onToggle={() => toggleFloor(floorName, rooms)}
-                selectedRoomIndex={
-                  selectedRoomByFloor[floorName] !== undefined
-                    ? selectedRoomByFloor[floorName]
-                    : null
-                }
-                onSelectRoom={(roomIndex) => selectRoom(floorName, roomIndex)}
-                onUpdateRoomField={(roomIndex, field, value) =>
-                  updateRoomField(floorName, roomIndex, field, value)
-                }
-              />
-            ))
-          )}
-
-          <View style={styles.eventsSectionHeader}>
-            <Text style={styles.sectionTitle}>Eventos</Text>
-
-            <Pressable style={styles.addEventButton} onPress={addNewEvent}>
-              <Text style={styles.addEventButtonText}>Agregar Evento +</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <SafeAreaView style={[styles.container, { flex: 1 }]}>
+          <View style={styles.header}>
+            <Pressable onPress={onBack} style={styles.backBtn}>
+              <Text style={styles.backText}>‹</Text>
             </Pressable>
+
+            <Text style={styles.headerTitle}>Editar Edificio</Text>
           </View>
 
-          {events.length === 0 ? (
-            <View style={styles.emptyFloorBox}>
-              <Text style={styles.emptyFloorText}>Este edificio no tiene eventos cargados.</Text>
-            </View>
-          ) : (
-            events.map((event, index) => (
-              <EventEditor
-                key={event?.id || index}
-                event={event}
-                index={index}
-                isOpen={!!openEvents[index]}
-                onToggle={() => toggleEvent(index)}
-                onUpdateField={updateEventField}
-                onDelete={removeEvent}
-              />
-            ))
-          )}
+          <ScrollView
+            contentContainerStyle={[styles.scrollContent, { flexGrow: 1 }]}
+            keyboardShouldPersistTaps="handled"
+          >
+            <Text style={styles.pageTitle}>{name || "Edificio"}</Text>
+            <Text style={styles.pageSubtitle}>{subtitle || "Sin subtítulo"}</Text>
 
-          <Pressable style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>Guardar Cambios</Text>
-          </Pressable>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+            <View style={styles.formCard}>
+              <Text style={styles.label}>Nombre</Text>
+              <TextInput
+                style={styles.input}
+                value={name}
+                onChangeText={setName}
+                placeholder="Nombre"
+                placeholderTextColor="#aaa"
+              />
+
+              <Text style={styles.label}>Subtitulo</Text>
+              <TextInput
+                style={styles.input}
+                value={subtitle}
+                onChangeText={setSubtitle}
+                placeholder="Subtítulo"
+                placeholderTextColor="#aaa"
+              />
+
+              <Text style={styles.label}>Coordenadas</Text>
+              <View style={styles.coordsRow}>
+                <TextInput
+                  style={[styles.input, styles.coordInput]}
+                  value={x}
+                  onChangeText={setX}
+                  placeholder="X"
+                  keyboardType="numeric"
+                  placeholderTextColor="#aaa"
+                />
+                <TextInput
+                  style={[styles.input, styles.coordInput]}
+                  value={y}
+                  onChangeText={setY}
+                  placeholder="Y"
+                  keyboardType="numeric"
+                  placeholderTextColor="#aaa"
+                />
+              </View>
+
+              <Text style={styles.label}>Radio</Text>
+              <TextInput
+                style={styles.input}
+                value={radius}
+                onChangeText={setRadius}
+                placeholder="Radio"
+                keyboardType="numeric"
+                placeholderTextColor="#aaa"
+              />
+
+              <Text style={styles.sectionTitle}>Pisos</Text>
+
+              {floorEntries.length === 0 ? (
+                <View style={styles.emptyFloorBox}>
+                  <Text style={styles.emptyFloorText}>
+                    Este edificio no tiene pisos cargados.
+                  </Text>
+                </View>
+              ) : (
+                floorEntries.map(([floorName, rooms]) => (
+                  <BuildingFloorEditor
+                    key={floorName}
+                    floorName={floorName}
+                    rooms={rooms}
+                    isOpen={!!openFloors[floorName]}
+                    onToggle={() => toggleFloor(floorName, rooms)}
+                    selectedRoomIndex={
+                      selectedRoomByFloor[floorName] !== undefined
+                        ? selectedRoomByFloor[floorName]
+                        : null
+                    }
+                    onSelectRoom={(roomIndex) => selectRoom(floorName, roomIndex)}
+                    onUpdateRoomField={(roomIndex, field, value) =>
+                      updateRoomField(floorName, roomIndex, field, value)
+                    }
+                  />
+                ))
+              )}
+
+              <View style={styles.eventsSectionHeader}>
+                <Text style={styles.sectionTitle}>Eventos</Text>
+
+                <Pressable style={styles.addEventButton} onPress={addNewEvent}>
+                  <Text style={styles.addEventButtonText}>Agregar Evento +</Text>
+                </Pressable>
+              </View>
+
+              {events.length === 0 ? (
+                <View style={styles.emptyFloorBox}>
+                  <Text style={styles.emptyFloorText}>
+                    Este edificio no tiene eventos cargados.
+                  </Text>
+                </View>
+              ) : (
+                events.map((event, index) => (
+                  <EventEditor
+                    key={event?.id || index}
+                    event={event}
+                    index={index}
+                    isOpen={!!openEvents[index]}
+                    onToggle={() => toggleEvent(index)}
+                    onUpdateField={updateEventField}
+                    onDelete={removeEvent}
+                  />
+                ))
+              )}
+
+              <Pressable style={styles.saveButton} onPress={handleSave}>
+                <Text style={styles.saveButtonText}>Guardar Cambios</Text>
+              </Pressable>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }

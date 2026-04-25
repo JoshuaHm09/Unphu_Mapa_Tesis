@@ -6,40 +6,37 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-
     "experiments": {
       "reactNativeNewArchitecture": true,
       "reactNativeStyleInlining": true
     },
-
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.majorask.unphumapjs",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
-
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff",
-        "permissions": ["INTERNET"]
+        "permissions": [
+          "INTERNET"
+        ]
       },
-
       "edgeToEdgeEnabled": true,
-
       "newArchEnabled": true,
-
       "package": "com.majorask.unphumapjs"
     },
-
     "web": {
       "favicon": "./assets/favicon.png"
     },
-
     "extra": {
       "eas": {
         "projectId": "411f2c7d-bc51-41a3-af4f-cf8be1a669d6"

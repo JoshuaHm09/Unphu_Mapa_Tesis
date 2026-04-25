@@ -1,8 +1,5 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { FlatList, Pressable, SafeAreaView, StyleSheet, Text, View } from "react-native";
-import AdminFoodScreen from "./AdminFoodScreen";
-
-
 
 function BuildingCard({ item, onPress }) {
   return (
@@ -20,10 +17,59 @@ function BuildingCard({ item, onPress }) {
   );
 }
 
-export default function AdminBuildingScreen({ buildings = [], onBack, onSelectBuilding }) {
+export default function AdminBuildingScreen({
+  buildings = [],
+  onBack,
+  onSelectBuilding,
+}) {
+  const sortedBuildings = useMemo(() => {
+    const getNumericOrder = (building) => {
+      const name = String(building?.name || "").trim();
+      const subtitle = String(building?.subtitle || "").trim();
+
+      const sources = [name, subtitle];
+
+      for (const text of sources) {
+        const match = text.match(/\b(\d{1,2})\b/);
+        if (match) {
+          const num = Number(match[1]);
+          if (!Number.isNaN(num) && num >= 1 && num <= 12) {
+            return num;
+          }
+        }
+      }
+
+      return null;
+    };
+
+    return [...buildings].sort((a, b) => {
+      const aNum = getNumericOrder(a);
+      const bNum = getNumericOrder(b);
+
+      const aIsNumbered = aNum !== null;
+      const bIsNumbered = bNum !== null;
+
+      if (aIsNumbered && bIsNumbered) {
+        return aNum - bNum;
+      }
+
+      if (aIsNumbered && !bIsNumbered) {
+        return -1;
+      }
+
+      if (!aIsNumbered && bIsNumbered) {
+        return 1;
+      }
+
+      return String(a?.name || "").localeCompare(String(b?.name || ""), "es", {
+        numeric: true,
+        sensitivity: "base",
+      });
+    });
+  }, [buildings]);
+
   return (
     <SafeAreaView style={styles.container}>
-      {/* HEADER */}
       <View style={styles.header}>
         <Pressable onPress={onBack} style={styles.backBtn}>
           <Text style={styles.backText}>‹</Text>
@@ -33,7 +79,7 @@ export default function AdminBuildingScreen({ buildings = [], onBack, onSelectBu
       </View>
 
       <FlatList
-        data={buildings}
+        data={sortedBuildings}
         keyExtractor={(item, index) => String(item?.id ?? index)}
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
@@ -65,13 +111,12 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   backText: {
-
     fontSize: 50,
     color: "#fff",
     fontWeight: "800",
   },
   title: {
-    top:5,
+    top: 5,
     left: 10,
     color: "#fff",
     fontSize: 25,

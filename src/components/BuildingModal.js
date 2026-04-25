@@ -13,6 +13,9 @@ const BUILDING_GREEN = "#34A853";
 const FAVORITE_UNFILLED_WHITE = require("../../assets/favorites_icon_white.png");
 const FAVORITE_FILLED_WHITE = require("../../assets/favorites_pressed_white.png");
 
+
+
+
 function DefaultRoomRow({ item }) {
   return (
     <View style={styles.card}>
@@ -286,6 +289,9 @@ function BuildingModalInner({
   RoomCard,
   ImageCarousel,
 }) {
+
+
+
   const floors = Object.keys(building.floors || {});
   const hasEvents = Array.isArray(building.events) && building.events.length > 0;
 
@@ -330,7 +336,7 @@ function BuildingModalInner({
         <Pressable
           onPress={onToggleFav}
           accessibilityLabel={isFav ? "Quitar de favoritos" : "Agregar a favoritos"}
-          style={{ position: "absolute", top: 20, right: 300, zIndex: 20, padding: 4 }}
+          style={{ position: "absolute", top: 20, right: 320, zIndex: 20, padding: 4 }}
         >
           <Animated.View style={heartAnimatedStyle}>
             <Image

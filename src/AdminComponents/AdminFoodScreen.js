@@ -26,7 +26,7 @@ export default function AdminFoodScreen({ foodPlaces = [], onBack, onSelectFood 
           <Text style={styles.backText}>‹</Text>
         </Pressable>
 
-        <Text style={styles.title}>Comida</Text>
+        <Text style={styles.title}>Cafeterias</Text>
       </View>
 
       <FlatList

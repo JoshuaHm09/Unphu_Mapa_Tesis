@@ -21,8 +21,7 @@ export default function MarkerPin({
 }) {
   const scale = useRef(new Animated.Value(0)).current; // Animacion inicial
   const tapScale = useRef(new Animated.Value(1)).current; // Animacion de tap
-
-  // Animacion icnical cuando aparece
+{/* Animacion icnical cuando aparece*/}
   useEffect(() => {
     const timer = setTimeout(() => {
       Animated.spring(scale, {
@@ -31,12 +30,14 @@ export default function MarkerPin({
         tension: 80,
         useNativeDriver: true,
       }).start();
-    }, 3000); // para cambiaar el delay (Menos valor, mas rapido, mas valor mas lento)
+    }, 10); // para cambiaar el delay (Menos valor, mas rapido, mas valor mas lento)
+           // Puse el cambio a 10 para que sincronizara bien con los filtros...
+
+
 
     return () => clearTimeout(timer);
   }, []);
-
-  // Animacion de tap
+{/* Animacion de tap*/}
   const handlePress = () => {
     Animated.sequence([
       Animated.spring(tapScale, {

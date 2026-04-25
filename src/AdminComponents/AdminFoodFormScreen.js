@@ -318,13 +318,13 @@ export default function AdminFoodFormScreen({ foodPlace, onBack, onSaved }) {
           <Text style={styles.backText}>‹</Text>
         </Pressable>
 
-        <Text style={styles.headerTitle}>Editar Comida</Text>
+        <Text style={styles.headerTitle}>Editar Locales</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.pageTitle}>{foodPlace?.name || "Lugar de comida"}</Text>
         <Text style={styles.pageSubtitle}>
-          Selecciona un vendor para editarlo
+          Selecciona un establecimiento de comida para editar
         </Text>
 
         <View style={styles.formCard}>

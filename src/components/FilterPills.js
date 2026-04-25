@@ -1,4 +1,4 @@
-// el PILL de los filtros
+{/* el PILL de los filtros*/}
 
 import React from "react";
 import { Pressable, Text, View } from "react-native";

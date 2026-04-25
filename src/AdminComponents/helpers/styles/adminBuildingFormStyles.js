@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f3f3f3",
   },
   header: {
-    height: 70,
+    height: 80,
     backgroundColor: "#16a34a",
     flexDirection: "row",
     alignItems: "center",
@@ -40,13 +40,15 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   backText: {
-    fontSize: 28,
+    fontSize: 45,
     color: "#fff",
     fontWeight: "800",
   },
   headerTitle: {
+    top: 5,
+    left: 13,
     color: "#fff",
-    fontSize: 20,
+    fontSize: 26,
     fontWeight: "800",
   },
   scrollContent: {

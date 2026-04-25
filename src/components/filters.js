@@ -1,128 +1,213 @@
-
-
 import React from "react";
-import { View, Text, Pressable, ScrollView, Modal } from "react-native";
-import Animated, { useSharedValue, withTiming, useAnimatedStyle } from "react-native-reanimated";
-import FilterPill from "./FilterPills";
-
-
-const CHECK_ICON = require("../../assets/check_green.png");
+import { View, Pressable, Image } from "react-native";
+import Animated, {
+  useSharedValue,
+  withTiming,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 
 export const FILTER_ICONS = {
-  bathrooms:  require("../../assets/icons/bathroom_locator.png"),
-  vending:    require("../../assets/icons/vending_machine_locator.png"),
-  parking:    require("../../assets/icons/parqueos_locator.png"),
-  labs:       require("../../assets/icons/lab_black_locator.png"),
+  buildings: require("../../assets/building_icon_green.png"),
+  foodPlaza: require("../../assets/comida.png"),
+  bathrooms: require("../../assets/icons/bathroom_locator.png"),
+  vending: require("../../assets/icons/vending_machine_locator.png"),
+  parking: require("../../assets/icons/parqueos_locator.png"),
+  labs: require("../../assets/icons/lab_black_locator.png"),
   greenAreas: require("../../assets/icons/arbol_locator.png"),
   studyAreas: require("../../assets/icons/study_locator.png"),
 };
 
-function FiltersInner({ filters, setFilters, visible, onClose }) {
-  const opacity = useSharedValue(0);
-  const scale = useSharedValue(0.92);
+const MAIN_GREEN = "#34A853";
+const ACTIVE_BORDER = "rgba(52,168,83,0.45)";
+
+function CircleButton({ icon, isActive, onPress }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{
+        width: 52,
+        height: 52,
+        borderRadius: 26,
+        backgroundColor: "#FFFFFF",
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: isActive ? 2 : 1,
+        borderColor: isActive ? ACTIVE_BORDER : "rgba(0,0,0,0.06)",
+        shadowColor: "#000",
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 6,
+      }}
+    >
+      <Image
+        source={icon}
+        resizeMode="contain"
+        style={{ width: 26, height: 26 }}
+      />
+    </Pressable>
+  );
+}
+
+function FiltersInner({
+  filters,
+  setFilters,
+  visible,
+  onClose,
+  showBuildings,
+  setShowBuildings,
+  showFoodPlaza,
+  setShowFoodPlaza,
+}) {
+  const progress = useSharedValue(0);
 
   React.useEffect(() => {
-    if (visible) {
-      opacity.value = withTiming(1, { duration: 200 });
-      scale.value = withTiming(1, { duration: 200 });
-    } else {
-      opacity.value = withTiming(0, { duration: 150 });
-      scale.value = withTiming(0.92, { duration: 150 });
-    }
-  }, [visible]);
+    progress.value = withTiming(visible ? 1 : 0, {
+      duration: visible ? 220 : 180,
+    });
+  }, [visible, progress]);
 
-  const modalStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ scale: scale.value }],
+  const stackStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+    transform: [
+      { translateY: (1 - progress.value) * -14 },
+      { scale: 0.97 + progress.value * 0.03 },
+    ],
   }));
 
   const filterItems = React.useMemo(
     () => [
-      { key: "parking", label: "Parqueos" },
-      { key: "labs", label: "Laboratorios" },
+      { key: "buildings", label: "Edificios" },
+      { key: "foodPlaza", label: "Comida" },
       { key: "bathrooms", label: "Baños" },
-      { key: "vending", label: "Máquina Expendedora" },
-      { key: "studyAreas", label: "Salas de Estudio" },
+      { key: "vending", label: "Máquinas" },
+      { key: "parking", label: "Parqueos" },
       { key: "greenAreas", label: "Áreas Verdes" },
+      { key: "studyAreas", label: "Salas de Estudio" },
+      { key: "labs", label: "Laboratorios" },
     ],
     []
   );
 
-  if (!visible) return null;
+  const toggleFilter = (key) => {
+    if (key === "buildings") {
+      setShowBuildings((prev) => !prev);
+      return;
+    }
 
-  const resetFilters = () => {
-    const reset = {};
-    filterItems.forEach((f) => (reset[f.key] = false));
-    setFilters(reset);
+    if (key === "foodPlaza") {
+      setShowFoodPlaza((prev) => !prev);
+      return;
+    }
+
+    setFilters((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
   };
 
   return (
-    <Modal
-      transparent
-      visible={visible}
-      animationType="none"
-      hardwareAccelerated
-      onRequestClose={onClose}
+    <View
+      pointerEvents="box-none"
+      style={{
+        position: "absolute",
+        right: 18,
+        top: 140,
+        zIndex: 20,
+      }}
     >
-
       <Pressable
         onPress={onClose}
         style={{
           position: "absolute",
-          inset: 0,
-          backgroundColor: "rgba(0,0,0,0.15)",
+          right: 0,
+          top: 0,
+          width: 58,
+          height: 58,
+          borderRadius: 29,
+          backgroundColor: visible ? MAIN_GREEN : "#FFFFFF",
+          alignItems: "center",
+          justifyContent: "center",
+          shadowColor: "#000",
+          shadowOpacity: 0.14,
+          shadowRadius: 10,
+          elevation: 10,
+          borderWidth: visible ? 0 : 1,
+          borderColor: "rgba(0,0,0,0.06)",
         }}
-      />
-
-      // Card
-      <Animated.View
-        style={[
-          modalStyle,
-          {
-            position: "absolute",
-            top: 220,
-            alignSelf: "center",
-            width: 330,
-            backgroundColor: "white",
-            borderRadius: 20,
-            padding: 18,
-            shadowColor: "#000",
-            shadowOpacity: 0.12,
-            shadowRadius: 10,
-            elevation: 10,
-          },
-        ]}
       >
-        // Header
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 15 }}>
-          <View>
-            <Text style={{ fontSize: 22, fontWeight: "900" }}>Filtros</Text>
-            <Text style={{ fontSize: 13, color: "#6B7280" }}>Sección de filtros</Text>
-          </View>
-          <Pressable onPress={resetFilters}>
-            <Text style={{ color: "#34A853", fontWeight: "600" }}>Reiniciar</Text>
-          </Pressable>
-        </View>
-
-        // Pills
-        <ScrollView
-          contentContainerStyle={{ flexDirection: "row", flexWrap: "wrap" }}
-          keyboardShouldPersistTaps="handled"
-          removeClippedSubviews
+        <View
+          style={{
+            width: 20,
+            height: 20,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
         >
-          {filterItems.map((f) => (
-            <FilterPill
-              key={f.key}
-              label={f.label}
-              icon={FILTER_ICONS[f.key]}
-              checkIcon={CHECK_ICON}
-              isOn={!!filters[f.key]}
-              onToggle={() => setFilters({ ...filters, [f.key]: !filters[f.key] })}
+          <View
+            style={{
+              position: "absolute",
+              width: 18,
+              height: 3,
+              borderRadius: 2,
+              backgroundColor: visible ? "#FFFFFF" : MAIN_GREEN,
+            }}
+          />
+          {!visible && (
+            <View
+              style={{
+                position: "absolute",
+                width: 3,
+                height: 18,
+                borderRadius: 2,
+                backgroundColor: MAIN_GREEN,
+              }}
             />
-          ))}
-        </ScrollView>
-      </Animated.View>
-    </Modal>
+          )}
+        </View>
+      </Pressable>
+
+      {visible && (
+        <Animated.View
+          pointerEvents="auto"
+          style={[
+            stackStyle,
+            {
+              position: "absolute",
+              top: 70,
+              right: -3,
+              paddingVertical: 10,
+              paddingHorizontal: 8,
+              borderRadius: 30,
+              backgroundColor: "rgba(255,255,255,0.96)",
+              alignItems: "center",
+              gap: 12,
+              shadowColor: "#000",
+              shadowOpacity: 0.12,
+              shadowRadius: 10,
+              elevation: 10,
+            },
+          ]}
+        >
+          {filterItems.map((item) => {
+            const isActive =
+              item.key === "buildings"
+                ? !!showBuildings
+                : item.key === "foodPlaza"
+                ? !!showFoodPlaza
+                : !!filters[item.key];
+
+            return (
+              <CircleButton
+                key={item.key}
+                icon={FILTER_ICONS[item.key]}
+                isActive={isActive}
+                onPress={() => toggleFilter(item.key)}
+              />
+            );
+          })}
+        </Animated.View>
+      )}
+    </View>
   );
 }
 

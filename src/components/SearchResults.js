@@ -70,7 +70,7 @@ export default function SearchResults({
         elevation: 9999,
       }}
     >
-      // Top bar + Buscador
+{/* Top bar + Buscador*/}
       <View style={styles.topBarWrapper} pointerEvents="box-none">
         <View style={styles.topBar}>
           <Image
@@ -118,8 +118,7 @@ export default function SearchResults({
           </View>
         </View>
       </View>
-
-      // Search Results
+{/* Search Results*/}
       {showSearchResults && filteredResults.length > 0 && (
         <View style={styles.searchResultsContainer}>
           <ScrollView keyboardShouldPersistTaps="handled">
@@ -140,8 +139,7 @@ export default function SearchResults({
           </ScrollView>
         </View>
       )}
-
-      //Overlay para closing
+{/*Overlay para closing*/}
       {(searchFocused || showSearchResults) && (
         <Pressable style={styles.globalTapClose} onPress={closeSearch} />
       )}

@@ -1,4 +1,4 @@
-export const filterPoints = {  // los puntos de los filtros
+export const filterPoints = {
   bathrooms: [
     { id: 1, x: 2350, y: 3500 },
     { id: 2, x: 2300, y: 4800 },

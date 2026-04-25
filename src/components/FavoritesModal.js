@@ -63,8 +63,7 @@ const FavoritesModal = ({
           backgroundColor: "#00000070",
         }}
       />
-
-      // Contenedor Centraal
+{/* Contenedor Centraal*/}
       <View
         style={{
           flex: 1,

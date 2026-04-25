@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../../utils/supabase";
-{/* Esto vive solo mientras la app está corriendo.*/}
-{/* Si reinicias la app, vuelve a false.*/}
 let guestSessionActive = false;
 
 export default function useAuthSession(adminEmail) {
@@ -11,8 +9,6 @@ export default function useAuthSession(adminEmail) {
 
   useEffect(() => {
     const loadSession = async () => {
-{/* Si el usuario siguió como invitado dentro de esta misma ejecución*/}
-{/* de la app, no mostramos login otra vez aunque MapScreen se remonte.*/}
       if (guestSessionActive) {
         setIsAdmin(false);
         setHasEnteredApp(true);

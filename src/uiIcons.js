@@ -31,9 +31,34 @@ export const UI_ICONS = {
   ICON_IT: require("../assets/computo.png"),
   ICON_MATH: require("../assets/math.png"),
   ICON_TREE: require("../assets/Tree.png"),
+  ICON_RECEPCION: require("../assets/recepcion.png"),
+  ICON_FUTBOL: require("../assets/futbol_2.png"),
   ICON_BASEBALL: require("../assets/Pelota.png"),
   ICON_TOURISM: require("../assets/turista.png"),
   ICON_DERECHO: require("../assets/derecho.png"),
+  ICON_TENNIS_1: require("../assets/Tennis_Ball.png"),
+  ICON_BALONCESTO: require("../assets/Basketball.png"),
+  ICON_GYM_3: require("../assets/gym_white.png"),
+  ICON_COURRIER: require("../assets/courrier.svg"),
+  ICON_TALLER: require("../assets/taller.svg"),
+  ICON_FACUART: require("../assets/facuart.svg"),
+  ICON_ESCUELADISE: require("../assets/escueladise.svg"),
+  ICON_EGRESADOSOFI: require("../assets/egresadosofi.svg"),
+  ICON_FACULTADARTS: require("../assets/facultadarts.svg"),
+  ICON_DEPOSITO: require("../assets/deposito.svg"),
+  ICON_SALONPROYECCION: require("../assets/salonproyeccion.svg"),
+  ICON_MUSIC: require("../assets/anfiteatro.svg"),
+  ICON_AGROPECUARIA: require("../assets/agropecuaria.svg"),
+  ICON_TUTORIA: require("../assets/tutoria.svg"),
+  ICON_GEOMATICA: require("../assets/geomatica_1.svg"),
+  ICON_COMISION: require("../assets/comision.svg"),
+  ICON_INFO: require("../assets/info_2.svg"),
+  ICON_CONTABILIDAD: require("../assets/contabilidad.svg"),
+  ICON_COSMOS: require("../assets/cosmos.svg"),
+  ICON_COMEDOR: require("../assets/comedor.svg"),
+  ICON_ODONTOLOGIA: require("../assets/odontologia.svg"),
+  ICON_CELULARES: require("../assets/carga_celulares.svg"),
+
 
   // ===== BADGES =====
   ICON_AC_FALSE: require("../assets/AC_False.png"),
@@ -44,6 +69,7 @@ export const UI_ICONS = {
   ICON_AIR: require("../assets/air-conditioner.png"),
   ICON_PROJECTOR: require("../assets/projector.png"),
   ICON_STUDENTS: require("../assets/students.png"),
+
 
   // ===== MAP =====
   BG_PATTERN: require("../assets/bg_pattern.png"),

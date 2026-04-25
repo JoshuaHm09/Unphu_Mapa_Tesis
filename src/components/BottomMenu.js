@@ -3,46 +3,43 @@ import { View, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { styles } from "../mapStyles";
 
+// ICONOS EXISTENTES
 const ICON_FAVORITES_PRESSED = require("../../assets/favorites_pressed.png");
 const ICON_LEGEND_PRESSED = require("../../assets/maps_pressed.png");
-const ICON_FILTERS_PRESSED = require("../../assets/filters_pressed.png");
 const ICON_FAVORITES = require("../../assets/favoritess.png");
 const ICON_LEGEND = require("../../assets/map_s.png");
-const ICON_FILTERS_BTN = require("../../assets/filters_icon_2.png");
+
+// NUEVO ICONO DIRECTORIO
+const ICON_DIRECTORY = require("../../assets/directorio_1.svg");
 
 const BottomMenu = ({
-  filtersPressed,
   favoritesPressed,
   legendPressed,
-  setFiltersPressed,
   setFavoritesPressed,
   setLegendPressed,
-  setFiltersVisible,
   setFavoritesModalVisible,
   setLegendModalVisible,
+  onPressDirectory,
 }) => {
   return (
     <View style={styles.bottomMenuContainer}>
-      // Boton de Filtros
+
+      {/*  BOTÓN DIRECTORIO */}
       <Pressable
-        onPress={() => {
-          setFiltersPressed(true);
-          setTimeout(() => setFiltersPressed(false), 120);
-          setFiltersVisible(true);
-        }}
+        onPress={onPressDirectory}
         style={({ pressed }) => [
           styles.bottomMenuButton,
           pressed && { transform: [{ scale: 0.92 }], opacity: 0.7 },
         ]}
       >
         <Image
-          source={filtersPressed ? ICON_FILTERS_PRESSED : ICON_FILTERS_BTN}
-          style={{ width: 25, height: 19 }}
+          source={ICON_DIRECTORY}
+          style={{ width: 25, height: 25 }}
           contentFit="contain"
         />
       </Pressable>
 
-      // Btn Favoritos
+      {/* FAVORITOS */}
       <Pressable
         onPress={() => {
           setFavoritesPressed(true);
@@ -60,7 +57,7 @@ const BottomMenu = ({
         />
       </Pressable>
 
-       // Btn Leyenda
+      {/*  LEYENDA */}
       <Pressable
         onPress={() => {
           setLegendPressed(true);

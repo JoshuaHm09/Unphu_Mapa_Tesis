@@ -10,7 +10,7 @@ export default function AdminSidePanelButton({ onPress }) {
         <View style={styles.line} />
       </View>
 
-      <Text style={styles.text}>Admin</Text>
+
     </Pressable>
   );
 }
@@ -18,8 +18,10 @@ export default function AdminSidePanelButton({ onPress }) {
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    left: 12,
-    top: "42%",
+    width: 50,
+    height: 50,
+    left:-5,
+    top: "22%",
     zIndex: 999,
     backgroundColor: "#ffffff",
     borderRadius: 16,
@@ -35,6 +37,7 @@ const styles = StyleSheet.create({
   },
   lines: {
     gap: 3,
+    top: 8,
   },
   line: {
     width: 18,

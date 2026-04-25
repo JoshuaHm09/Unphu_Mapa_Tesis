@@ -164,9 +164,7 @@ const LegendModal = ({ visible, onClose, bottomInset = 0 }) => {
    },
 
   ];
-
-
-  //  UI
+{/*  UI*/}
   return (
     <Modal
       transparent
@@ -174,8 +172,7 @@ const LegendModal = ({ visible, onClose, bottomInset = 0 }) => {
       visible={visible}
       onRequestClose={onClose}
     >
-
-      // Overlay
+{/* Overlay*/}
       <Pressable
         onPress={onClose}
         style={{
@@ -187,8 +184,7 @@ const LegendModal = ({ visible, onClose, bottomInset = 0 }) => {
           backgroundColor: "#00000070",
         }}
       />
-
-      // Content
+{/* Content*/}
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <View
           style={{
@@ -226,8 +222,7 @@ const LegendModal = ({ visible, onClose, bottomInset = 0 }) => {
               contentFit="contain"
             />
           </Pressable>
-
-          // Title
+{/* Title*/}
           <Text
             style={{
               textAlign: "center",
@@ -239,8 +234,7 @@ const LegendModal = ({ visible, onClose, bottomInset = 0 }) => {
           >
             Leyenda
           </Text>
-
-          //LIST
+{/*LIST*/}
           <ScrollView
             style={{
               maxHeight: 420,
@@ -260,7 +254,7 @@ const LegendModal = ({ visible, onClose, bottomInset = 0 }) => {
                     paddingHorizontal: 10,
                   }}
                 >
-                  // Icon badge
+{/* Icon badge*/}
                  <View
                    style={{
                      width: 42,
