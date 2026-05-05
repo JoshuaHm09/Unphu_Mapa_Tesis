@@ -94,7 +94,7 @@ export default function useMapGestures({
   }));
 
   const recenterMap = () => {
-    const initialScale = minScale * 1.5;
+    const initialScale = minScale * 1.3;
 
     scale.value = withTiming(initialScale, { duration: 300 });
 

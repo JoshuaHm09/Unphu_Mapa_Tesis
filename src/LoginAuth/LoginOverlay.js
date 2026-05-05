@@ -38,7 +38,7 @@ export default function LoginOverlay({
         <Pressable style={styles.card} onPress={() => {}}>
           <Text style={styles.title}>Iniciar Sesión</Text>
           <Text style={styles.subtitle}>
-            Para tener acceso como administrador, por favor ingresa tus
+            Por favor ingresa tus
             credenciales.
           </Text>
 

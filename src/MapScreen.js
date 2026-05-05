@@ -35,9 +35,11 @@ import AdminFoodScreen from "./AdminComponents/AdminFoodScreen";
 import AdminFoodFormScreen from "./AdminComponents/AdminFoodFormScreen";
 import LoginOverlay from "./LoginAuth/LoginOverlay";
 
+
 const IMG_W = 4096;
 const IMG_H = 5120;
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+
 
 export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
   const ADMIN_EMAIL = "admintest@gmail.com";
@@ -105,6 +107,7 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [showBuildings, setShowBuildings] = useState(true);
   const [showFoodPlaza, setShowFoodPlaza] = useState(true);
+
 
   const handleToggleFilters = useCallback(() => {
     setFiltersOpen((prev) => !prev);
@@ -305,6 +308,7 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
     );
   }
 
+
   return (
     <View style={styles.screen}>
       <Image
@@ -357,6 +361,21 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
               contentFit="cover"
             />
 
+
+             <Pressable
+              style={{
+                position: "absolute",
+                width: IMG_W,
+                height: IMG_H,
+              }}
+              onPress={(e) => {
+                const { locationX, locationY } = e.nativeEvent;
+                console.log("COORD:", locationX, locationY);
+              }}
+            />
+
+
+
             {showBuildings
               ? buildings.map((b) => {
                   const { label, iconSource } = getMarkerForBuilding(b);
@@ -368,7 +387,7 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
                       y={b.y}
                       label={label}
                       iconSource={iconSource}
-                      onPress={() => setSelectedBuilding(b)}
+                     onPress={() => setSelectedBuilding(b)}
                     />
                   );
                 })
@@ -423,8 +442,8 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
                         borderRadius: b.radius,
                       },
                     ]}
-                    onPress={() => setSelectedBuilding(b)}
-                  />
+                   onPress={() => setSelectedBuilding(b)}
+                   />
                 ))
               : null}
 
@@ -457,6 +476,8 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
           contentFit="contain"
         />
       </Pressable>
+
+
 
       <BuildingModal
         building={selectedBuilding}

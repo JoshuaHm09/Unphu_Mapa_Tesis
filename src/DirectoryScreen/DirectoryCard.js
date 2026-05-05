@@ -1,10 +1,17 @@
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 import { Image } from "expo-image";
+import { UI_ICONS } from "../uiIcons";
 
 export default function DirectoryCard({ building, onPress }) {
-  const imageSource =
+  const isFood = building?.kind === "food";
+
+  let imageSource =
     building?.images?.[0]?.source || building?.images?.[0] || null;
+
+  if (isFood) {
+    imageSource = UI_ICONS.ICON_COMEDOR;
+  }
 
   return (
     <Pressable onPress={onPress} style={styles.card}>

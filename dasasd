@@ -1,0 +1,10 @@
+[33mb9be2a9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32madmin-panel[m[33m, [m[1;31morigin/admin-panel[m[33m)[m backup antes de limpiar assets
+[33m58cfc59[m Codigo mas organizado y todo funcionando bien
+[33m0a60405[m backup antes de ordenar todo
+[33mbf687f5[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m, [m[1;32mbackup/adminpanel[m[33m)[m Avance: Mapa con directorio funcional, mas simple
+[33m2c00198[m Backup antes de implementar sistema de navegacion
+[33m34ce96e[m :Update: Filtros, con una mejor implementacion y mejor, design, tengo que arreglar los gestos (zoom, pan, clam etc..)
+[33mbd2195b[m Update: se movieron todos los componentes a su archivo independientes
+[33m3539a13[m Update: Mejoras del UI, Buildings re-escritos y casi completos, Boton de centrado automatico, varios bug fixed
+[33me29e499[m v1.0 - Unphu_Mapa modal, carrusel, y gestos funcionando perfecto
+[33m3d880d9[m Initial commit

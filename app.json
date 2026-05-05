@@ -4,7 +4,7 @@
     "slug": "unphu-map-js",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/Unphu_Map_Logo.png",
     "userInterfaceStyle": "light",
     "experiments": {
       "reactNativeNewArchitecture": true,
@@ -24,11 +24,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff",
-        "permissions": [
-          "INTERNET"
-        ]
+        "foregroundImage": "./assets/Unphu_Map_Logo.png",
+        "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
       "newArchEnabled": true,

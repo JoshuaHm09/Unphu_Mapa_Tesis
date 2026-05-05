@@ -73,7 +73,7 @@ export const UI_ICONS = {
 
   // ===== MAP =====
   BG_PATTERN: require("../assets/bg_pattern.png"),
-  MAP: require("../assets/Unphu_Mapa_v5.png"),
+  MAP: require("../assets/Mapa_Principal_1.png"),
   ICON_RECENTER: require("../assets/center.png"),
 
   // ===== FOOD =====
