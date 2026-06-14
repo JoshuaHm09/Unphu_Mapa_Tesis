@@ -15,6 +15,7 @@ export default function LoginOverlay({
   visible = true,
   onLogin,
   onContinueGuest,
+  loginError,
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -38,8 +39,7 @@ export default function LoginOverlay({
         <Pressable style={styles.card} onPress={() => {}}>
           <Text style={styles.title}>Iniciar Sesión</Text>
           <Text style={styles.subtitle}>
-            Por favor ingresa tus
-            credenciales.
+            Por favor ingresa tus credenciales.
           </Text>
 
           <View style={styles.inputGroup}>
@@ -91,6 +91,17 @@ export default function LoginOverlay({
           <Pressable style={styles.guestButton} onPress={onContinueGuest}>
             <Text style={styles.guestButtonText}>Continuar como Invitado</Text>
           </Pressable>
+
+          {loginError ? (
+            <View style={styles.errorBox}>
+              <MaterialIcons
+                name="error-outline"
+                size={22}
+                color="#B91C1C"
+              />
+              <Text style={styles.errorText}>{loginError}</Text>
+            </View>
+          ) : null}
         </Pressable>
       </KeyboardAvoidingView>
     </Pressable>
@@ -184,6 +195,30 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 18,
     fontWeight: "800",
+  },
+  errorBox: {
+    marginTop: 12,
+    backgroundColor: "#FEE2E2",
+    borderWidth: 1,
+    borderColor: "#FCA5A5",
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  errorText: {
+    flex: 1,
+    color: "#B91C1C",
+    fontSize: 14,
+    fontWeight: "600",
+    lineHeight: 19,
   },
   guestButton: {
     backgroundColor: "#1E6DEB",

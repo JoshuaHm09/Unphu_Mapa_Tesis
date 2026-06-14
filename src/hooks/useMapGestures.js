@@ -28,6 +28,18 @@ export default function useMapGestures({
   const savedTranslateX = useSharedValue(0);
   const savedTranslateY = useSharedValue(0);
 
+  const focusPoint = (x, y) => {
+    const targetScale = minScale * 3;
+
+    scale.value = withTiming(targetScale, { duration: 350 });
+
+    const offsetX = (x - imgWidth / 2) * targetScale;
+    const offsetY = (y - imgHeight / 2) * targetScale;
+
+    translateX.value = withTiming(-offsetX, { duration: 350 });
+    translateY.value = withTiming(-offsetY, { duration: 350 });
+  };
+
   useEffect(() => {
     const initialScale = minScale * 3;
     scale.value = initialScale;
@@ -126,5 +138,6 @@ export default function useMapGestures({
     animatedStyle,
     recenterMap,
     focusBuilding,
+    focusPoint,
   };
 }

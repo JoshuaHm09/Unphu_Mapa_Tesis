@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../../utils/supabase";
+
 let guestSessionActive = false;
 
 export default function useAuthSession(adminEmail) {
   const [showLoginOverlay, setShowLoginOverlay] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [hasEnteredApp, setHasEnteredApp] = useState(false);
+  const [loginError, setLoginError] = useState("");
 
   useEffect(() => {
     const loadSession = async () => {
@@ -75,14 +77,23 @@ export default function useAuthSession(adminEmail) {
 
   const handleLogin = useCallback(
     async ({ email, password }) => {
+      setLoginError("");
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        console.log("LOGIN ERROR:", error);
-        alert(error.message || "No se pudo iniciar sesión");
+        let mensaje =
+          "No fue posible iniciar sesión. Por favor, inténtelo nuevamente.";
+
+        if (error.message === "Invalid login credentials") {
+          mensaje =
+            "El correo electrónico o la contraseña ingresados son incorrectos.";
+        }
+
+        setLoginError(mensaje);
         return false;
       }
 
@@ -92,6 +103,7 @@ export default function useAuthSession(adminEmail) {
       setHasEnteredApp(true);
       setShowLoginOverlay(false);
       setIsAdmin(loggedEmail === adminEmail);
+      setLoginError("");
 
       return true;
     },
@@ -103,6 +115,7 @@ export default function useAuthSession(adminEmail) {
     setIsAdmin(false);
     setHasEnteredApp(true);
     setShowLoginOverlay(false);
+    setLoginError("");
   }, []);
 
   const handleLogout = useCallback(async () => {
@@ -111,12 +124,14 @@ export default function useAuthSession(adminEmail) {
     setIsAdmin(false);
     setHasEnteredApp(false);
     setShowLoginOverlay(true);
+    setLoginError("");
   }, []);
 
   return {
     showLoginOverlay,
     isAdmin,
     hasEnteredApp,
+    loginError,
     handleLogin,
     handleContinueGuest,
     handleLogout,

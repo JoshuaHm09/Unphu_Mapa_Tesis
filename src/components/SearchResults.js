@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { View, Text, Pressable, ScrollView, TextInput, Keyboard } from "react-native";
 import { Image } from "expo-image";
+import RouteButton from "./RouteButton";
 
 export default function SearchResults({
   styles,
@@ -14,6 +15,7 @@ export default function SearchResults({
   setShowSearchResults,
 
   onPickBuilding,
+  setIsRoutingMode
 }) {
   const items = useMemo(() => {
     const all = [];
@@ -115,7 +117,9 @@ export default function SearchResults({
                 <Text style={styles.clearButtonText}>×</Text>
               </Pressable>
             )}
+
           </View>
+          <RouteButton onPress={() => setIsRoutingMode(true)} />
         </View>
       </View>
 {/* Search Results*/}
@@ -143,6 +147,7 @@ export default function SearchResults({
       {(searchFocused || showSearchResults) && (
         <Pressable style={styles.globalTapClose} onPress={closeSearch} />
       )}
+
     </View>
   );
 }

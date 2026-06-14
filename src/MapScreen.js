@@ -35,9 +35,19 @@ import AdminFoodScreen from "./AdminComponents/AdminFoodScreen";
 import AdminFoodFormScreen from "./AdminComponents/AdminFoodFormScreen";
 import LoginOverlay from "./LoginAuth/LoginOverlay";
 
+import RouteButton from "./components/RouteButton";
+import RouteSearch from "./components/RouteSearch";
+
+import RouteLayer from "./components/RouteLayer";
+import { findShortestPath } from "./components/findShortestPath";
+import { routePlaces } from "./components/routeGraph";
+
+
 
 const IMG_W = 4096;
 const IMG_H = 5120;
+
+
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 
@@ -56,6 +66,7 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
     isAdmin,
     handleLogin,
     handleContinueGuest,
+    loginError,
   } = useAuthSession(ADMIN_EMAIL);
 
   const {
@@ -72,6 +83,7 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
     animatedStyle,
     recenterMap,
     focusBuilding,
+    focusPoint,
   } = useMapGestures({
     imgWidth: IMG_W,
     imgHeight: IMG_H,
@@ -84,6 +96,8 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
   const [selectedAdminFood, setSelectedAdminFood] = useState(null);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [selectedFoodPlaza, setSelectedFoodPlaza] = useState(null);
+  const [isRoutingMode, setIsRoutingMode] = useState(false);
+
 
   const [filters, setFilters] = useState({
     bathrooms: false,
@@ -107,6 +121,9 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [showBuildings, setShowBuildings] = useState(true);
   const [showFoodPlaza, setShowFoodPlaza] = useState(true);
+
+  const [activeRoute, setActiveRoute] = useState(null);
+
 
 
   const handleToggleFilters = useCallback(() => {
@@ -317,20 +334,34 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
         contentFit="cover"
       />
 
-      <SearchResults
-        styles={styles}
-        buildings={buildings}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        searchFocused={searchFocused}
-        setSearchFocused={setSearchFocused}
-        showSearchResults={showSearchResults}
-        setShowSearchResults={setShowSearchResults}
-        onPickBuilding={(b) => {
-          focusBuilding(b);
-          setSelectedBuilding(b);
-        }}
-      />
+     {isRoutingMode ? (
+       <RouteSearch
+         buildings={buildings}
+         onClose={() => {
+           setActiveRoute(null);
+           setIsRoutingMode(false);
+         }}
+         setActiveRoute={setActiveRoute}
+         focusPoint={focusPoint}
+       />
+     ) : (
+       <SearchResults
+         styles={styles}
+         buildings={buildings}
+         searchQuery={searchQuery}
+         setSearchQuery={setSearchQuery}
+         searchFocused={searchFocused}
+         setSearchFocused={setSearchFocused}
+         showSearchResults={showSearchResults}
+         setShowSearchResults={setShowSearchResults}
+         setIsRoutingMode={setIsRoutingMode}
+         onPickBuilding={(b) => {
+           focusBuilding(b);
+           setSelectedBuilding(b);
+         }}
+       />
+     )}
+
 
       {isAdmin && (
         <AdminSidePanelButton onPress={() => setActiveView("admin")} />
@@ -349,6 +380,8 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
 
       <GestureDetector gesture={composedGesture}>
         <Animated.View>
+
+
           <Animated.View
             style={[
               { width: IMG_W, height: IMG_H, position: "relative" },
@@ -360,6 +393,25 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
               style={{ flex: 1 }}
               contentFit="cover"
             />
+
+            <Pressable
+              style={{
+                position: "absolute",
+                width: IMG_W,
+                height: IMG_H,
+
+              }}
+              onPress={(e) => {
+                const { locationX, locationY } = e.nativeEvent;
+
+                console.log("COORD:", locationX, locationY);
+              }}
+            />
+
+             <RouteLayer
+                        path={activeRoute}
+
+                      />
 
 
              <Pressable
@@ -469,6 +521,8 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
         </Animated.View>
       </GestureDetector>
 
+
+
       <Pressable style={styles.recenterCircle} onPress={recenterMap}>
         <Image
           source={UI_ICONS.ICON_RECENTER}
@@ -565,6 +619,7 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
         visible={showLoginOverlay}
         onLogin={handleLogin}
         onContinueGuest={handleContinueGuest}
+        loginError={loginError}
       />
     </View>
   );
