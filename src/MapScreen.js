@@ -44,6 +44,9 @@ import { routePlaces } from "./components/routeGraph";
 
 
 
+
+
+
 const IMG_W = 4096;
 const IMG_H = 5120;
 
@@ -66,6 +69,7 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
     isAdmin,
     handleLogin,
     handleContinueGuest,
+    handleLogout,
     loginError,
   } = useAuthSession(ADMIN_EMAIL);
 
@@ -261,12 +265,34 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
     [roomCardIcons]
   );
 
+  function hasOpenEvent(events) {
+    if (!Array.isArray(events)) return false;
+
+    const now = new Date();
+
+    return events.some((event) => {
+      if (!event?.date) return true;
+
+      const end = event?.endTime
+        ? new Date(`${event.date}T${event.endTime}:00`)
+        : new Date(`${event.date}T23:59:59`);
+
+      return now <= end;
+    });
+  }
+
+
+
   if (activeView === "admin") {
     return (
       <AdminHomeScreen
         onBack={() => setActiveView("map")}
         onPressBuildings={() => setActiveView("admin-buildings")}
         onPressFood={() => setActiveView("admin-food")}
+        onLogout={() => {
+          setActiveView("map");
+          handleLogout();
+        }}
       />
     );
   }
@@ -439,6 +465,7 @@ export default function MapScreen({ hideBottomMenu = false, goToDirectory }) {
                       y={b.y}
                       label={label}
                       iconSource={iconSource}
+                      hasEvent={hasOpenEvent(b.events)}
                      onPress={() => setSelectedBuilding(b)}
                     />
                   );

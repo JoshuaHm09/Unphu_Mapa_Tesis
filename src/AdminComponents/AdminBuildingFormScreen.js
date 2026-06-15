@@ -63,6 +63,17 @@ function EventEditor({
               placeholderTextColor="#aaa"
             />
 
+             <Text style={styles.label}>Ubicación del Evento</Text>
+              <TextInput
+                  style={styles.input}
+                  value={event?.locationDetail || ""}
+                  onChangeText={(text) =>
+                  onUpdateField(index, "locationDetail", text)
+                  }
+                  placeholder="Ej: Salón de Conferencias, Aula 204, Auditorio"
+                  placeholderTextColor="#aaa"
+                 />
+
             <DateField
               label="Fecha"
               value={event?.date || ""}
@@ -217,6 +228,7 @@ export default function AdminBuildingFormScreen({ building, onBack, onSaved }) {
       id: `evt_${Date.now()}`,
       name: "",
       subtitle: "",
+      locationDetail: "",
       date: "",
       startTime: "",
       endTime: "",
@@ -298,6 +310,7 @@ export default function AdminBuildingFormScreen({ building, onBack, onSaved }) {
       id: event?.id || `evt_${index + 1}`,
       name: event?.name?.trim() || "",
       subtitle: event?.subtitle?.trim() || "",
+      locationDetail: event?.locationDetail?.trim() || "",
       date: event?.date?.trim() || "",
       startTime: event?.startTime?.trim() || "",
       endTime: event?.endTime?.trim() || "",
@@ -383,6 +396,7 @@ export default function AdminBuildingFormScreen({ building, onBack, onSaved }) {
                 placeholder="Subtítulo"
                 placeholderTextColor="#aaa"
               />
+
 
               <Text style={styles.label}>Coordenadas</Text>
               <View style={styles.coordsRow}>

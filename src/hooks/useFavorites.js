@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function useFavorites() {
   const [favoritesList, setFavoritesList] = useState([]);
-  const [lastRemoved, setLastRemoved] = useState(null);
+  const [removedHistory, setRemovedHistory] = useState([]);
 
   const [toastMessage, setToastMessage] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
@@ -29,31 +29,47 @@ export default function useFavorites() {
 
   const toggleFavorite = useCallback(
     (building) => {
-      const isFav = favoritesList.some((b) => b.id === building.id);
+      setFavoritesList((prev) => {
+        const isFav = prev.some((b) => b.id === building.id);
 
-      if (isFav) {
-        setFavoritesList((prev) => prev.filter((b) => b.id !== building.id));
-        setLastRemoved(building);
-        showToast("Edificio eliminado de favoritos");
-      } else {
-        setFavoritesList((prev) => [...prev, building]);
-        setLastRemoved(null);
+        if (isFav) {
+          setRemovedHistory((history) => [...history, building]);
+          showToast("Edificio eliminado de favoritos");
+
+          return prev.filter((b) => b.id !== building.id);
+        }
+
         showToast("Edificio agregado a favoritos");
-      }
+
+        return [...prev, building];
+      });
     },
-    [favoritesList, showToast]
+    [showToast]
   );
 
   const undoLastRemoved = useCallback(() => {
-    if (lastRemoved) {
-      setFavoritesList((prev) => [...prev, lastRemoved]);
-      setLastRemoved(null);
-    }
-  }, [lastRemoved]);
+    setRemovedHistory((history) => {
+      if (history.length === 0) return history;
+
+      setFavoritesList((prev) => {
+        const existingIds = new Set(prev.map((b) => b.id));
+
+        const restoredItems = history.filter(
+          (b) => !existingIds.has(b.id)
+        );
+
+        return [...prev, ...restoredItems];
+      });
+
+      showToast("Favoritos restaurados");
+
+      return [];
+    });
+  }, [showToast]);
 
   return {
     favoritesList,
-    lastRemoved,
+    removedHistory,
     toastMessage,
     toastVisible,
     toggleFavorite,

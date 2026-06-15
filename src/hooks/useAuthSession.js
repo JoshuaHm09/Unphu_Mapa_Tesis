@@ -86,7 +86,7 @@ export default function useAuthSession(adminEmail) {
 
       if (error) {
         let mensaje =
-          "No fue posible iniciar sesión. Por favor, inténtelo nuevamente.";
+          "Para continuar, ingrese un correo electrónico válido y una contraseña.";
 
         if (error.message === "Invalid login credentials") {
           mensaje =

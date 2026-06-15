@@ -66,11 +66,13 @@ export const routeEdges = [
   ["path_1_2_3", "path_1_2_4"],
   ["path_1_2_4", "e2_entry"],
 
+  // 2 -> 4
   ["e2_entry", "path_2_4_1"],
   ["path_2_4_1", "path_2_4_2"],
   ["path_2_4_2", "path_2_4_3"],
   ["path_2_4_3", "e4_entry"],
 
+  // 4 -> 2
   ["e4_entry", "path_2_4_3"],
   ["path_2_4_3", "path_2_4_2"],
   ["path_2_4_2", "path_2_4_1"],
@@ -127,6 +129,10 @@ export const getRoutePlaceNode = (fromId, toId, placeId) => {
   const from = Number(fromId);
   const to = Number(toId);
   const current = Number(placeId);
+
+  if (from === 2 && to === 4 && current === 2) {
+    return "e2_from_4_entry";
+  }
 
   if (from === 4 && to === 2 && current === 2) {
     return "e2_from_4_entry";

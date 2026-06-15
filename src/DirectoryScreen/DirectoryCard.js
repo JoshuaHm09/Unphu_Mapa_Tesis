@@ -1,25 +1,26 @@
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 import { Image } from "expo-image";
-import { UI_ICONS } from "../uiIcons";
+
+import CAFETERIA_E2 from "../../assets/Cafeteria_Edif_2.jpeg";
+import CAFETERIA_E7 from "../../assets/Cafeteria_Edif_7.jpeg";
+import PLAZA_COMIDA from "../../assets/ricoHotDog.webp";
+const FOOD_IMAGES = {
+  "Plaza de Comida": PLAZA_COMIDA,
+  "Cafetería - Edificio 2": CAFETERIA_E2,
+  "Cafeteria Edificio 7": CAFETERIA_E7,
+};
 
 export default function DirectoryCard({ building, onPress }) {
-  const isFood = building?.kind === "food";
-
-  let imageSource =
-    building?.images?.[0]?.source || building?.images?.[0] || null;
-
-  if (isFood) {
-    imageSource = UI_ICONS.ICON_COMEDOR;
-  }
+  const imageSource =
+    FOOD_IMAGES[building?.name] ||
+    building?.images?.[0]?.source ||
+    building?.images?.[0] ||
+    null;
 
   return (
     <Pressable onPress={onPress} style={styles.card}>
-      <Image
-        source={imageSource}
-        style={styles.image}
-        contentFit="cover"
-      />
+      <Image source={imageSource} style={styles.image} contentFit="cover" />
 
       <View style={styles.textContainer}>
         <Text style={styles.title} numberOfLines={1}>

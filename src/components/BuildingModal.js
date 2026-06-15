@@ -215,6 +215,29 @@ function EventCard({ event, buildingName }) {
           </View>
         )}
 
+        {!!event.locationDetail && (
+          <View
+            style={{
+              backgroundColor: "#E0F2FE",
+              borderRadius: 999,
+              paddingHorizontal: 10,
+              paddingVertical: 6,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 12,
+                color: "#0369A1",
+                fontWeight: "600",
+              }}
+            >
+             Lugar: {event.locationDetail}
+            </Text>
+          </View>
+        )}
+
+
+
         {event.cocurricularHours !== "" &&
           event.cocurricularHours != null && (
             <View

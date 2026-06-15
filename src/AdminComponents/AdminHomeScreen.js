@@ -2,7 +2,7 @@ import React from "react";
 import { SafeAreaView, StyleSheet, Text, Pressable, View } from "react-native";
 
 
-export default function AdminHomeScreen({ onBack, onPressBuildings, onPressFood }) {
+export default function AdminHomeScreen({ onBack, onPressBuildings, onPressFood, onLogout }) {
   return (
     <SafeAreaView style={styles.container}>
       {/* HEADER */}
@@ -27,6 +27,11 @@ export default function AdminHomeScreen({ onBack, onPressBuildings, onPressFood 
           <Text style={styles.icon}>🍴</Text>
           <Text style={styles.cardText}>Comida</Text>
         </Pressable>
+
+        <Pressable style={styles.logoutButton} onPress={onLogout}>
+          <Text style={styles.logoutButtonText}>Cambiar usuario</Text>
+        </Pressable>
+
       </View>
     </SafeAreaView>
   );
@@ -88,4 +93,20 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "800",
   },
+logoutButton: {
+  marginTop: 24,
+  backgroundColor: "#FEE2E2",
+  borderRadius: 16,
+  paddingVertical: 14,
+  alignItems: "center",
+  borderWidth: 1,
+  borderColor: "#FCA5A5",
+},
+
+logoutButtonText: {
+  color: "#B91C1C",
+  fontSize: 16,
+  fontWeight: "800",
+},
+
 });
