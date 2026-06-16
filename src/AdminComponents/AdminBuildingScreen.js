@@ -7,9 +7,7 @@ function BuildingCard({ item, onPress }) {
       <View style={styles.info}>
         <Text style={styles.name}>{item?.name || "Sin nombre"}</Text>
         <Text style={styles.subtitle}>{item?.subtitle || "Sin subtítulo"}</Text>
-        <Text style={styles.desc} numberOfLines={2}>
-          {item?.description || "Sin descripción"}
-        </Text>
+
       </View>
 
       <Text style={styles.arrow}>›</Text>

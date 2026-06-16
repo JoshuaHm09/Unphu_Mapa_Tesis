@@ -11,9 +11,9 @@ export default function FoodVendorList({
   return (
     <>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>Vendors</Text>
+        <Text style={styles.sectionTitle}>Locales</Text>
         <Pressable style={styles.addButton} onPress={onAddVendor}>
-          <Text style={styles.addButtonText}>+ Agregar vendor</Text>
+          <Text style={styles.addButtonText}>+ Agregar Local</Text>
         </Pressable>
       </View>
 
@@ -38,7 +38,7 @@ export default function FoodVendorList({
                   {vendor.schedule || "Sin horario"}
                 </Text>
                 <Text style={styles.vendorMeta}>
-                  {menuCount} item{menuCount === 1 ? "" : "s"} en menú
+                  {menuCount} producto{menuCount === 1 ? "" : "s"} en menú
                 </Text>
               </View>
 

@@ -2,21 +2,23 @@ import React from "react";
 import { Pressable, Text, View } from "react-native";
 import { Image } from "expo-image";
 
-import CAFETERIA_E2 from "../../assets/Cafeteria_Edif_2.jpeg";
-import CAFETERIA_E7 from "../../assets/Cafeteria_Edif_7.jpeg";
-import PLAZA_COMIDA from "../../assets/ricoHotDog.webp";
+
+
 const FOOD_IMAGES = {
-  "Plaza de Comida": PLAZA_COMIDA,
-  "Cafetería - Edificio 2": CAFETERIA_E2,
-  "Cafeteria Edificio 7": CAFETERIA_E7,
+  plaza: require("../../assets/ricoHotDog.webp"),
+  cafeteria_2: require("../../assets/Cafeteria_Edif_2.jpeg"),
+  cafeteria_7: require("../../assets/Cafeteria_Edif_7.jpeg"),
 };
+
+
 
 export default function DirectoryCard({ building, onPress }) {
   const imageSource =
-    FOOD_IMAGES[building?.name] ||
+    FOOD_IMAGES[building?.type] ||
     building?.images?.[0]?.source ||
     building?.images?.[0] ||
     null;
+
 
   return (
     <Pressable onPress={onPress} style={styles.card}>

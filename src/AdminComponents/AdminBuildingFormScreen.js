@@ -9,7 +9,6 @@ import {
   View,
   KeyboardAvoidingView,
   Platform,
-  TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
 import { supabase } from "../../utils/supabase";
@@ -51,15 +50,6 @@ function EventEditor({
               value={event?.name || ""}
               onChangeText={(text) => onUpdateField(index, "name", text)}
               placeholder="Nombre del evento"
-              placeholderTextColor="#aaa"
-            />
-
-            <Text style={styles.label}>Subtitulo</Text>
-            <TextInput
-              style={styles.input}
-              value={event?.subtitle || ""}
-              onChangeText={(text) => onUpdateField(index, "subtitle", text)}
-              placeholder="Subtítulo"
               placeholderTextColor="#aaa"
             />
 
@@ -172,6 +162,8 @@ export default function AdminBuildingFormScreen({ building, onBack, onSaved }) {
   const [openFloors, setOpenFloors] = useState({});
   const [selectedRoomByFloor, setSelectedRoomByFloor] = useState({});
   const [openEvents, setOpenEvents] = useState({});
+  const [showNewFloorInput, setShowNewFloorInput] = useState(false);
+  const [newFloorName, setNewFloorName] = useState("");
 
   const floorEntries = useMemo(() => Object.entries(floors || {}), [floors]);
 
@@ -300,6 +292,145 @@ export default function AdminBuildingFormScreen({ building, onBack, onSaved }) {
     );
   };
 
+  const addNewFloor = () => {
+    const cleanName = newFloorName.trim();
+
+    if (!cleanName) {
+      Alert.alert("Falta información", "Escribe el nombre del piso.");
+      return;
+    }
+
+    if (floors?.[cleanName]) {
+      Alert.alert("Ese piso ya existe", "Usa otro nombre para el piso.");
+      return;
+    }
+
+    setFloors((prev) => ({
+      ...prev,
+      [cleanName]: [],
+    }));
+
+    setOpenFloors((prev) => ({
+      ...prev,
+      [cleanName]: true,
+    }));
+
+    setSelectedRoomByFloor((prev) => ({
+      ...prev,
+      [cleanName]: null,
+    }));
+
+    setNewFloorName("");
+    setShowNewFloorInput(false);
+  };
+
+  const deleteFloor = (floorName) => {
+    Alert.alert(
+      "Eliminar piso",
+      `¿Seguro que quieres eliminar "${floorName}" y todos sus espacios?`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: () => {
+            setFloors((prev) => {
+              const updated = { ...prev };
+              delete updated[floorName];
+              return updated;
+            });
+          },
+        },
+      ]
+    );
+  };
+
+  const addRoomToFloor = (floorName) => {
+    setFloors((prev) => {
+      const currentRooms = Array.isArray(prev?.[floorName])
+        ? prev[floorName]
+        : [];
+
+      return {
+        ...prev,
+        [floorName]: [
+          ...currentRooms,
+          {
+            name: "",
+            description: "",
+          },
+        ],
+      };
+    });
+
+    setSelectedRoomByFloor((prev) => ({
+      ...prev,
+      [floorName]: floors?.[floorName]?.length || 0,
+    }));
+  };
+
+  const deleteRoomFromFloor = (floorName, roomIndex) => {
+    Alert.alert("Eliminar espacio", "¿Seguro que quieres eliminar este espacio?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Eliminar",
+        style: "destructive",
+        onPress: () => {
+          setFloors((prev) => {
+            const currentRooms = Array.isArray(prev?.[floorName])
+              ? prev[floorName]
+              : [];
+
+            return {
+              ...prev,
+              [floorName]: currentRooms.filter((_, index) => index !== roomIndex),
+            };
+          });
+
+          setSelectedRoomByFloor((prev) => ({
+            ...prev,
+            [floorName]: null,
+          }));
+        },
+      },
+    ]);
+  };
+
+  const isAcademicSpace = (room) => {
+    const name = (room?.name || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
+
+    return (
+      name.includes("aula") ||
+      name.includes("laboratorio") ||
+      name.startsWith("lab ") ||
+      name === "lab"
+    );
+  };
+
+  const cleanedFloors = Object.fromEntries(
+    Object.entries(floors || {}).map(([floorName, rooms]) => [
+      floorName,
+      Array.isArray(rooms)
+        ? rooms.map((room) => {
+            const academic = isAcademicSpace(room);
+
+            return {
+              ...room,
+              AC: academic ? room.AC === true : false,
+              projector: academic ? room.projector === true : false,
+              capacity: academic ? room.capacity ?? "" : "",
+            };
+          })
+        : rooms,
+    ])
+  );
+
+
+
   const handleSave = async () => {
     if (!name.trim()) {
       Alert.alert("Falta información", "El edificio debe tener un nombre.");
@@ -361,7 +492,7 @@ export default function AdminBuildingFormScreen({ building, onBack, onSaved }) {
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+
         <SafeAreaView style={[styles.container, { flex: 1 }]}>
           <View style={styles.header}>
             <Pressable onPress={onBack} style={styles.backBtn}>
@@ -430,6 +561,71 @@ export default function AdminBuildingFormScreen({ building, onBack, onSaved }) {
 
               <Text style={styles.sectionTitle}>Pisos</Text>
 
+              <Pressable
+                style={{
+                  backgroundColor: "#16a34a",
+                  paddingVertical: 10,
+                  borderRadius: 12,
+                  alignItems: "center",
+                  marginBottom: showNewFloorInput ? 10 : 14,
+                }}
+                onPress={() => setShowNewFloorInput((prev) => !prev)}
+              >
+                <Text style={{ color: "#fff", fontWeight: "800" }}>Agregar piso +</Text>
+              </Pressable>
+
+              {showNewFloorInput && (
+                <View
+                  style={{
+                    backgroundColor: "#fff",
+                    borderRadius: 12,
+                    padding: 12,
+                    marginBottom: 14,
+                  }}
+                >
+                  <Text style={styles.label}>Nombre del piso</Text>
+
+                  <TextInput
+                    style={styles.input}
+                    value={newFloorName}
+                    onChangeText={setNewFloorName}
+                    placeholder="Ej: Piso 1, Piso 2, Sótano"
+                    placeholderTextColor="#aaa"
+                  />
+
+                  <View style={{ flexDirection: "row", gap: 10, marginTop: 12 }}>
+                    <Pressable
+                      onPress={() => {
+                        setNewFloorName("");
+                        setShowNewFloorInput(false);
+                      }}
+                      style={{
+                        flex: 1,
+                        backgroundColor: "#ddd",
+                        paddingVertical: 11,
+                        borderRadius: 10,
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text style={{ color: "#333", fontWeight: "800" }}>Cancelar</Text>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={addNewFloor}
+                      style={{
+                        flex: 1,
+                        backgroundColor: "#16a34a",
+                        paddingVertical: 11,
+                        borderRadius: 10,
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text style={{ color: "#fff", fontWeight: "800" }}>Crear</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              )}
+
               {floorEntries.length === 0 ? (
                 <View style={styles.emptyFloorBox}>
                   <Text style={styles.emptyFloorText}>
@@ -453,6 +649,9 @@ export default function AdminBuildingFormScreen({ building, onBack, onSaved }) {
                     onUpdateRoomField={(roomIndex, field, value) =>
                       updateRoomField(floorName, roomIndex, field, value)
                     }
+                    onAddRoom={() => addRoomToFloor(floorName)}
+                    onDeleteRoom={(roomIndex) => deleteRoomFromFloor(floorName, roomIndex)}
+                    onDeleteFloor={() => deleteFloor(floorName)}
                   />
                 ))
               )}
@@ -491,7 +690,6 @@ export default function AdminBuildingFormScreen({ building, onBack, onSaved }) {
             </View>
           </ScrollView>
         </SafeAreaView>
-      </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 }

@@ -6,7 +6,6 @@ function FoodCard({ item, onPress }) {
     <Pressable style={styles.card} onPress={() => onPress(item)}>
       <View style={styles.info}>
         <Text style={styles.name}>{item?.name || "Sin nombre"}</Text>
-        <Text style={styles.subtitle}>{item?.type || "Sin tipo"}</Text>
         <Text style={styles.desc} numberOfLines={2}>
           {item?.description || "Sin descripción"}
         </Text>

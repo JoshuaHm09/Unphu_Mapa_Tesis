@@ -44,16 +44,16 @@ export default function FoodVendorEditor({
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Menú</Text>
         <Pressable style={styles.addButton} onPress={addMenuItem}>
-          <Text style={styles.addButtonText}>+ Agregar item</Text>
+          <Text style={styles.addButtonText}>+ Agregar</Text>
         </Pressable>
       </View>
 
       {(selectedVendor.menu || []).length === 0 ? (
-        <Text style={styles.emptyText}>No hay items en el menú.</Text>
+        <Text style={styles.emptyText}>No hay productos en el menú.</Text>
       ) : (
         (selectedVendor.menu || []).map((item) => (
           <View key={item.id} style={styles.groupCard}>
-            <Text style={styles.label}>Item</Text>
+            <Text style={styles.label}>Producto</Text>
             <TextInput
               style={styles.input}
               value={item.name}
@@ -76,7 +76,8 @@ export default function FoodVendorEditor({
               style={styles.removeButton}
               onPress={() => removeMenuItem(item.id)}
             >
-              <Text style={styles.removeButtonText}>Eliminar item</Text>
+              <Text style={styles.removeButtonText}>Eliminar Producto
+              </Text>
             </Pressable>
           </View>
         ))
@@ -112,7 +113,7 @@ export default function FoodVendorEditor({
       </View>
 
       <Pressable style={styles.deleteVendorButton} onPress={removeVendor}>
-        <Text style={styles.deleteVendorButtonText}>Eliminar vendor</Text>
+        <Text style={styles.deleteVendorButtonText}>Eliminar Local</Text>
       </Pressable>
     </View>
   );
